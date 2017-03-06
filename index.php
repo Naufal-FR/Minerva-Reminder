@@ -6,6 +6,7 @@
 	require_once( __DIR__ . '/conf/db_connection.php');
 	
 	require_once( __DIR__ . '/func/func_main.php');
+	require_once( __DIR__ . '/func/func_db.php');
 
 	require_once( __DIR__ . '/text/help_personal.php');
 	require_once( __DIR__ . '/text/help_group.php');
@@ -215,11 +216,7 @@
 													$check_result = fm_check_keyword($exploded_Message[1], $registered_id, $db);
 
 													if ($check_result == 0) {
-														$insert_query = "INSERT INTO `GROUP_FUNCTION` (`UNIQUE_ID`, `ID_FUNCTION`, `KEYWORD`) VALUES ('" .
-															$registered_id . "','" . 
-															1 . "','" . 
-															$exploded_Message[1] . "')";
-														mysqli_query($db, $insert_query);
+														fm_insert_group_function($exploded_Message[1], $registered_id, $db);
 														$text_response = "New Ping Created" ;
 													} elseif($check_result == 1) {
 														$text_response = "Duplicate keyword detected" ;
@@ -371,6 +368,7 @@
 
 											if ($register_status['IS_REGISTERED'] == 1) {
 												$target_id = (int) fm_get_unique_id($event['source']['groupId'], $db) ;
+												$target_name = fm_get_group_description($event['source']['groupId'], $db) ;
 
 												// Get personal ID
 												$query_ping = "SELECT `PERSONAL_ID` FROM LINKED_ACC WHERE `GF_ID` IN (" .
@@ -386,7 +384,7 @@
 								                        'messages' => array(
 								                            array(
 								                                'type' => 'text',
-								                                'text' => "A New Ping From Group ID : " . $target_id
+								                                'text' => "A New Ping From" . PHP_EOL . "Group ID : " . $target_id . PHP_EOL . "Group Name : " . $target_name
 								                            )
 								                        )
 								                    ));
@@ -422,8 +420,8 @@
 								case '..mylink' :
 									if (isset($event['source']['userId'])) {
 
-										$showId_query = "SELECT GF.UNIQUE_ID, GF.KEYWORD FROM GROUP_FUNCTION GF, LINKED_ACC LA ". 
-											"WHERE GF.GF_ID = LA.GF_ID AND LA.PERSONAL_ID ='" . 
+										$showId_query = "SELECT GF.UNIQUE_ID, GF.KEYWORD, GI.GROUP_DESCRIPTION FROM GROUP_FUNCTION GF, LINKED_ACC LA, GROUP_INFORMATION GI ". 
+											"WHERE GF.GF_ID = LA.GF_ID AND GI.UNIQUE_ID = GF.UNIQUE_ID AND LA.PERSONAL_ID ='" . 
 											$event['source']['userId'] . "'" ;
 
 										$query_result = mysqli_query($db, $showId_query);
@@ -432,15 +430,21 @@
 											$text_response = "You Don't Have Any Linked Ping" ;
 										} else {
 											$text_response = "Your Linked Ping" . PHP_EOL . PHP_EOL ;
-											while ( $query_fetch = mysqli_fetch_array($query_result) ) {
-												$group_identifier = $query_fetch['UNIQUE_ID'] ;
-												$text_response .= "Group ID : " . $group_identifier . PHP_EOL ;
-												do {
+
+											$query_fetch = mysqli_fetch_array($query_result) ;
+											$current_id = $query_fetch['UNIQUE_ID'];
+											$current_desc = $query_fetch['GROUP_DESCRIPTION'];
+
+											$text_response .= $current_desc . PHP_EOL . "Group ID : " . $current_id . PHP_EOL ;
+											do {
+												if ($current_id == $query_fetch['UNIQUE_ID']) {
 													$text_response .= "- " . $query_fetch['KEYWORD'] . PHP_EOL ;
-													$query_fetch = mysqli_fetch_array($query_result) ;
-												} while ($group_identifier == $query_fetch['UNIQUE_ID']) ;
-												// $text_response .= "> Group ID : " . $query_fetch['UNIQUE_ID'] . " | Keyword : " . $query_fetch['KEYWORD'] . PHP_EOL ;
-											}
+												} else {
+													$current_id = $query_fetch['UNIQUE_ID'] ;
+													$current_desc = $query_fetch['GROUP_DESCRIPTION'];
+													$text_response .= PHP_EOL . $current_desc . PHP_EOL . "Group ID : " . $current_id . PHP_EOL . "- " . $query_fetch['KEYWORD'] . PHP_EOL; 
+												}
+											} while ($query_fetch = mysqli_fetch_array($query_result)) ;
 										}
 
 			                    		mysqli_close($db);
@@ -504,11 +508,7 @@
 														if ($target_gf_id == $gf_result_id['GF_ID']) {
 															$text_response = "Your account already linked to that group ping keyword" ;
 														} else {
-															$insert_query = "INSERT INTO `LINKED_ACC` (`PERSONAL_ID`, `GF_ID`) VALUES ('" .
-																$event['source']['userId'] . "','" .
-																$target_gf_id . "')" ;
-
-															$linked_result = mysqli_query($db, $insert_query) ;
+															fm_insert_linked_acc($target_gf_id, $event['source']['userId'], $db);
 															$text_response = "Successfully Linked" ;	
 														}
 													}
@@ -615,7 +615,20 @@
 
 									break;
 
-								default:
+								// For fun only
+								case '..response':
+									$client->pushMessage(array(
+				                        'to' => 'C7103388573d2a713748de24a7396a662',
+				                        'messages' => array(
+				                            array(
+				                                'type' => 'text',
+				                                'text' => "I choose 1"
+				                            )
+				                        )
+				                    ));
+									break;
+
+								default: // When nothing is similar
 									if (isset($event['source']['userId'])) {
 										$client->replyMessage(array(
 							                        'replyToken' => $event['replyToken'],
