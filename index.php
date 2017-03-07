@@ -3,7 +3,7 @@
 	require_once( __DIR__ . '/src/LINEBotTiny.php');
 
 	require_once( __DIR__ . '/conf/channel_key.php');
-	require_once( __DIR__ . '/conf/db_connection.php')
+	require_once( __DIR__ . '/conf/db_connection.php');
 	
 	require_once( __DIR__ . '/func/func_main.php');
 	require_once( __DIR__ . '/func/func_db.php');
@@ -31,6 +31,21 @@
 						
 						try {
 							usleep(1200000);
+
+							if ($exploded_Message[0] == "..query") {	
+								$result = fm_check_keyword_available('9999', $db) ;
+
+			                    $client->replyMessage(array(
+			                        'replyToken' => $event['replyToken'],
+			                        'messages' => array(
+			                            array(
+			                                'type' => 'text',
+			                                'text' => $result
+			                            )
+			                        )
+			                    ));
+			                    
+							}
 
 							if ($exploded_Message[0] == "..debugProfile") {	
 								$result = $client->getProfile($event['source']['userId']);
@@ -135,16 +150,34 @@
 						                        )
 						                	));
 
+										} elseif (!isset($exploded_Message[1]) OR !isset($exploded_Message[2])) {
+											$text_response = 'Not enough information to request.' . PHP_EOL . 'Need group callsign and group pass' ;
+
+											$client->replyMessage(array(
+						                        'replyToken' => $event['replyToken'],
+						                        'messages' => array(
+						                            array(
+						                                'type' => 'text',
+						                                'text' => $text_response
+						                            )
+						                        )
+						                	));
+										
 										} else {
-											$query = "INSERT INTO GROUP_INFORMATION (`GROUP_ID`, `PASS`) VALUES ('" .
-												$event['source']['groupId'] . "','" . 12345 . "')";
+											$word_count = count($exploded_Message) ;
+											$group_pass = $exploded_Message[$word_count-1];
+											
+											unset($exploded_Message[$word_count-1]);
+											unset($exploded_Message[0]);
+											
+											$callsign = implode(" ", $exploded_Message);
+
+											$query = "INSERT INTO GROUP_INFORMATION (`GROUP_ID`, `PASS`, `GROUP_DESCRIPTION`) VALUES ('" .
+												$event['source']['groupId'] . "','" . $group_pass . "','" . $callsign . "')";
 											
 											mysqli_query($db, $query);
 
 											$registered_id = (int) fm_get_unique_id($event['source']['groupId'], $db) ;
-											$group_pass = fm_get_pass($event['source']['groupId'], $db);
-
-				                    		mysqli_close($db);
 
 				                    		$client->replyMessage(array(
 							                        'replyToken' => $event['replyToken'],
@@ -155,7 +188,9 @@
 							                            ), 
 							                            array(
 							                                'type' => 'text',
-							                                'text' => 'Group ID : ' . $registered_id . PHP_EOL . 'Group Pass : ' . $group_pass
+							                                'text' => 'Callsign : ' . $callsign . PHP_EOL . 
+							                                'Group ID : ' . $registered_id . PHP_EOL . 
+							                                'Group Pass : ' . $group_pass
 							                            ), 
 							                            array(
 							                                'type' => 'text',
@@ -164,6 +199,8 @@
 							                        )
 							                ));
 										}
+
+					                    mysqli_close($db);
 									
 									}
 									
@@ -313,42 +350,63 @@
 								case '..listPing' :
 									if (isset($event['source']['groupId'])) {
 
-										$search_id_res = (int) fm_get_unique_id($event['source']['groupId'], $db) ;
-
-			                    		$container = $search_id_res ;
+										$search_id_res = fm_get_unique_id($event['source']['groupId'], $db) ;
 										
-										if ($container === 0) {
+										if ($search_id_res === 0) {
 											$text_response = "Your group is not registered yet" ;
+
+											$client->replyMessage(array(
+								                        'replyToken' => $event['replyToken'],
+								                        'messages' => array(
+								                            array(
+								                                'type' => 'text',
+								                                'text' => $text_response
+								                            )
+								                        )
+								            ));
 											
 										} else {
-											$query_result = fm_get_keyword($container, $db);
+											$available = fm_check_keyword_available($search_id_res, $db);
 
-											if ( mysqli_num_rows($query_result) == 0 ) {
-												$text_response = "Your group does not have any ping yet" ; 
-											} else {
+											if ($available > 0){
 												$text_response = "Registered Keyword" . PHP_EOL . PHP_EOL ;
+
+												$query_result = fm_get_keyword ($search_id_res, $db);
+
 												while ( $query_fetch = mysqli_fetch_array($query_result) ) {
 													$text_response .= "> " . $query_fetch['KEYWORD'] . PHP_EOL ;
 												}
+					                    		
+					                    		$client->replyMessage(array(
+								                        'replyToken' => $event['replyToken'],
+								                        'messages' => array(
+								                            array(
+								                                'type' => 'text',
+								                                'text' => $text_response
+								                            ),
+								                            array(
+								                                'type' => 'text',
+								                                'text' => "Here's the list of keyword on this group~"
+								                            )
+								                        )
+								                ));
+											} elseif ($available == 0) {
+												$text_response = "Your group does not have any ping yet"; 
+
+												$client->replyMessage(array(
+								                        'replyToken' => $event['replyToken'],
+								                        'messages' => array(
+								                            array(
+								                                'type' => 'text',
+								                                'text' => $text_response
+								                            )
+								                        )
+								            	));
 											}
 										}
 
 			                    		mysqli_close($db);
-
-			                    		$client->replyMessage(array(
-						                        'replyToken' => $event['replyToken'],
-						                        'messages' => array(
-						                            array(
-						                                'type' => 'text',
-						                                'text' => $text_response
-						                            ),
-						                            array(
-						                                'type' => 'text',
-						                                'text' => "Here's the list of keyword on this group~"
-						                            )
-						                        )
-						                ));
-											
+	
 									}
 									
 									break;

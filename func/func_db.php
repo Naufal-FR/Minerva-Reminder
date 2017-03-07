@@ -75,6 +75,20 @@
 	// Check Query //
 	//////////////////
 
+	function fm_check_unique_id ($group_Id, $db_conf){
+
+		$query = "SELECT COUNT(*) AS `IS_CREATED` FROM `GROUP_INFORMATION` WHERE GROUP_ID='" . $group_Id . "'" ;
+		$query_result = mysqli_query($db_conf, $query);
+
+		$query_fetch = mysqli_fetch_array($query_result);
+
+		if ( $query_fetch['IS_CREATED'] == 0 ) {
+			return 0 ;
+		} elseif ( $query_fetch['IS_CREATED'] == 1 ) {
+			return 1 ;
+		}
+	}
+
 	function fm_check_keyword ($target_keyword, $group_Id, $db_conf){
 
 		$query = "SELECT COUNT(*) AS `IS_CREATED` FROM `GROUP_FUNCTION` WHERE UNIQUE_ID='" . $group_Id . "' AND KEYWORD='" . $target_keyword . "'";
@@ -88,6 +102,16 @@
 		}
 
 	}
+
+	function fm_check_keyword_available ($group_Id, $db_conf){
+
+		$query = "SELECT COUNT(*) AS `IS_CREATED` FROM `GROUP_FUNCTION` WHERE UNIQUE_ID='" . $group_Id . "'";
+		$query_result = mysqli_query($db_conf, $query);
+		$query_fetch = mysqli_fetch_array($query_result);
+		return $query_fetch['IS_CREATED'];
+
+	}
+
 
 	function fm_check_pass ($target_pass, $group_Id, $db_conf){
 
