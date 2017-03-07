@@ -247,7 +247,7 @@
 									}
 									
 									break;
-
+								// Could use some fixing
 								case '..deletePing':
 									if (isset($event['source']['groupId'])) {
 										
@@ -257,19 +257,13 @@
 											$target_keyword = $exploded_Message[1] ;
 											$target_pass = $exploded_Message[2] ;
 
-											$check_query = "SELECT COUNT(*) AS `IS_REGISTERED` FROM `GROUP_INFORMATION` WHERE GROUP_ID='" . $event['source']['groupId'] . "'" ;
-											$check_result = mysqli_query($db, $check_query);
-											$check_status = mysqli_fetch_array($check_result);
+											$check_status = fm_check_group_information($event['source']['groupId'], $db);
 
 											if ($check_status['IS_REGISTERED'] == 0) {
 												$text_response = "Your group is not registered yet" ;
 
 											} elseif ($check_status['IS_REGISTERED'] == 1) {
-												$check_pass_and_unique = "SELECT COUNT(*) AS 'IS_PASS_MATCH' FROM `GROUP_INFORMATION` WHERE PASS='" . $target_pass . 
-													"' AND GROUP_ID='" . $event['source']['groupId'] . "'" ;
-
-												$exec_query = mysqli_query($db, $check_pass_and_unique);
-												$fetch_pass = mysqli_fetch_array($exec_query);
+												$fetch_pass = fm_check_pass($target_pass, $event['source']['groupId'], $db);
 
 												if ($fetch_pass['IS_PASS_MATCH'] == 0) {
 													$text_response = "You entered the wrong password. Please check again" ;
@@ -327,13 +321,12 @@
 											$text_response = "Your group is not registered yet" ;
 											
 										} else {
-											$query_list = "SELECT `GF_ID`, `KEYWORD` FROM `GROUP_FUNCTION` WHERE UNIQUE_ID = '" . $container . "'";
-											$query_result = mysqli_query($db, $query_list);
+											$query_result = fm_get_keyword($container, $db);
 
 											if ( mysqli_num_rows($query_result) == 0 ) {
 												$text_response = "Your group does not have any ping yet" ; 
 											} else {
-												$text_response = "Registered Keyword For This Group" . PHP_EOL . PHP_EOL ;
+												$text_response = "Registered Keyword" . PHP_EOL . PHP_EOL ;
 												while ( $query_fetch = mysqli_fetch_array($query_result) ) {
 													$text_response .= "> " . $query_fetch['KEYWORD'] . PHP_EOL ;
 												}
@@ -348,6 +341,10 @@
 						                            array(
 						                                'type' => 'text',
 						                                'text' => $text_response
+						                            ),
+						                            array(
+						                                'type' => 'text',
+						                                'text' => "Here's the list of keyword on this group~"
 						                            )
 						                        )
 						                ));
@@ -362,9 +359,7 @@
 										if (!isset($exploded_Message[1])) {
 											$text_response = 'Not enough information to ping.' . PHP_EOL . 'Need ping keyword' ;
 										} else {
-											$query = "SELECT count(*) AS IS_REGISTERED FROM GROUP_INFORMATION WHERE GROUP_ID='" . $event['source']['groupId'] . "'" ;
-											$query_result = mysqli_query($db, $query);
-											$register_status = mysqli_fetch_array($query_result) ; 
+											$register_status = fm_check_group_information($event['source']['groupId'], $db);
 
 											if ($register_status['IS_REGISTERED'] == 1) {
 												$target_id = (int) fm_get_unique_id($event['source']['groupId'], $db) ;
@@ -384,7 +379,11 @@
 								                        'messages' => array(
 								                            array(
 								                                'type' => 'text',
-								                                'text' => "A New Ping From" . PHP_EOL . "Group ID : " . $target_id . PHP_EOL . "Group Name : " . $target_name
+								                                'text' =>  "> Source" . PHP_EOL . $target_name . PHP_EOL . "Group ID : " . $target_id
+								                            ),
+								                            array(
+								                                'type' => 'text',
+								                                'text' => "You have a new ping ~"
 								                            )
 								                        )
 								                    ));
@@ -429,7 +428,7 @@
 										if ( mysqli_num_rows($query_result) == 0 ) {
 											$text_response = "You Don't Have Any Linked Ping" ;
 										} else {
-											$text_response = "Your Linked Ping" . PHP_EOL . PHP_EOL ;
+											$text_response = "Linked Ping" . PHP_EOL . PHP_EOL ;
 
 											$query_fetch = mysqli_fetch_array($query_result) ;
 											$current_id = $query_fetch['UNIQUE_ID'];
@@ -455,6 +454,10 @@
 						                            array(
 						                                'type' => 'text',
 						                                'text' => $text_response
+						                            ),
+						                            array(
+						                                'type' => 'text',
+						                                'text' => "Here's all your personal link~"
 						                            )
 						                        )
 						                ));

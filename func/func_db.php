@@ -1,4 +1,9 @@
 <?php
+	
+	//////////////////
+	// Get Query //
+	//////////////////
+
 	function fm_get_pass ($group_Id, $db_conf){
 
 		$query = "SELECT `PASS` FROM `GROUP_INFORMATION` WHERE GROUP_ID = '" . $group_Id . "'";
@@ -39,7 +44,20 @@
 
 	}
 
-	function fm_get_keyword ($target_keyword, $group_Id, $db_conf){
+	function fm_get_keyword ($group_Id, $db_conf){
+
+		$query = "SELECT `KEYWORD` FROM `GROUP_FUNCTION` WHERE UNIQUE_ID='" . $group_Id . "'";
+		$query_result = mysqli_query($db_conf, $query);
+
+		if ( mysqli_num_rows($query_result) == 0 ) {
+			return 0 ;
+		} else {
+			return $query_result ;
+		}
+
+	}
+
+	function fm_get_keyword_secure ($target_keyword, $group_Id, $db_conf){
 
 		$query = "SELECT `KEYWORD` FROM `GROUP_FUNCTION` WHERE UNIQUE_ID='" . $group_Id . "' AND KEYWORD='" . $target_keyword . "'";
 		$query_result = mysqli_query($db_conf, $query);
@@ -47,12 +65,15 @@
 		if ( mysqli_num_rows($query_result) == 0 ) {
 			return 0 ;
 		} else {
-			$query_fetch = mysqli_fetch_array($query_result);
-			$keyword = $query_fetch['KEYWORD'] ;
-			return $keyword ;
+			return $query_result ;
 		}
 
 	}
+
+
+	//////////////////
+	// Check Query //
+	//////////////////
 
 	function fm_check_keyword ($target_keyword, $group_Id, $db_conf){
 
@@ -67,6 +88,31 @@
 		}
 
 	}
+
+	function fm_check_pass ($target_pass, $group_Id, $db_conf){
+
+		$query = "SELECT COUNT(*) AS 'IS_PASS_MATCH' FROM `GROUP_INFORMATION` WHERE PASS='" . $target_pass . 
+			"' AND GROUP_ID='" . $group_Id . "'" ;
+		$query_result = mysqli_query($db_conf, $query);
+		$query_fetch = mysqli_fetch_array($query_result);
+
+		return $query_fetch ;
+
+	}
+
+	function fm_check_group_information ($group_Id, $db_conf){
+
+		$query = "SELECT COUNT(*) AS `IS_REGISTERED` FROM `GROUP_INFORMATION` WHERE GROUP_ID='" . $group_Id . "'" ;
+		$query_result = mysqli_query($db_conf, $query);
+		$query_fetch = mysqli_fetch_array($query_result);
+
+		return $query_fetch ;
+
+	}
+
+	//////////////////
+	// Insert Query //
+	//////////////////
 
 	function fm_insert_group_information ($pass, $group_Id, $group_description, $db_conf){
 
