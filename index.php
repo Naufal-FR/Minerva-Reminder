@@ -3,8 +3,7 @@
 	require_once( __DIR__ . '/src/LINEBotTiny.php');
 
 	require_once( __DIR__ . '/conf/channel_key.php');
-	require_once( __DIR__ . '/conf/db_connection.php');
-	require_once( __DIR__ . '/conf/db_connection_display.php');
+	require_once( __DIR__ . '/conf/db_connection.php')
 	
 	require_once( __DIR__ . '/func/func_main.php');
 	require_once( __DIR__ . '/func/func_db.php');
