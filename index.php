@@ -133,7 +133,10 @@
 
 							switch ($exploded_Message[0]) {
 
-								// Works Only On Group Account
+								//////////////////////////////////
+								// Only Works On Group Account //
+								////////////////////////////////
+
 								case '..request':
 									if (isset($event['source']['groupId'])) {
 
@@ -284,7 +287,7 @@
 									}
 									
 									break;
-								// Could use some fixing
+
 								case '..deletePing':
 									if (isset($event['source']['groupId'])) {
 										
@@ -519,7 +522,132 @@
 
 									break;
 
-								// Works Only On Personal Account
+								case '..wholink' :
+									if (isset($event['source']['groupId'])) {
+										if (!isset($exploded_Message[1])) {
+											$text_response = 'Not enough information to know who is linked.' . PHP_EOL . 'Need keyword' ;
+										} else {
+											$check_group = fm_check_unique_id($event['source']['groupId'], $db);
+											if ( $check_group == 0 ) {
+												$text_response = "Your Group Isn't Registered Yet" ;
+											} else {
+												$unique_id = fm_get_unique_id($event['source']['groupId'], $db);
+												$target_keyword = $exploded_Message[1] ;
+												$search_result = fm_get_keyword_secure($target_keyword, $unique_id, $db);
+												if ( $search_result === 0) {
+													$text_response = "No ping with that name in this group";
+													$return_var = 1 ;
+												} else {
+													$fetch_gf_id = fm_get_gf_id_secure($search_result, $unique_id, $db) ;
+													$is_linked_exist = fm_check_linked_id($fetch_gf_id, $db);
+													if ($is_linked_exist == 0) {
+														$text_response = "Nobody linked to this ping yet" ;
+														$return_var = 1 ;
+													} elseif ($is_linked_exist == 1) {
+														$personal_id_list = fm_get_personal_id($fetch_gf_id, $db);
+														$text_response = "People linked to " . $target_keyword . PHP_EOL . PHP_EOL;
+														while ($profile_id_to_search = mysqli_fetch_array($personal_id_list)) {
+															$result = $client->getProfile($profile_id_to_search['PERSONAL_ID']);
+															$result = json_decode($result, true);
+															$text_response .= "> " . $result['displayName'] . PHP_EOL;
+														}
+														$return_var = 2 ;
+													}
+												}
+											}
+										}
+			                    		mysqli_close($db);
+
+			                    		if ($return_var == 2) {
+				                    		$client->replyMessage(array(
+							                        'replyToken' => $event['replyToken'],
+							                        'messages' => array(
+							                            array(
+							                                'type' => 'text',
+							                                'text' => $text_response
+							                            ),
+							                            array(
+							                                'type' => 'text',
+							                                'text' => "Here's all the people linked to that ping~"
+							                            )
+							                        )
+							                ));
+			                    		} elseif ($return_var == 1) {
+			                    			$client->replyMessage(array(
+							                        'replyToken' => $event['replyToken'],
+							                        'messages' => array(
+							                            array(
+							                                'type' => 'text',
+							                                'text' => $text_response 
+							                            )
+							                        )
+							                ));
+			                    		}				
+									}
+									
+									break;
+
+								// NEW 
+								case '..remove':
+									if (isset($event['source']['groupId'])) {
+										
+										if (!isset($exploded_Message[1])) {
+											$text_response = 'Not enough information to remove account.' . PHP_EOL . 'Need group pass' ;
+										} else {											
+											$inserted_pass = $exploded_Message[1] ;
+											$check_status = fm_check_group_information($event['source']['groupId'], $db);
+
+											if ($check_status['IS_REGISTERED'] == 0) {
+												$text_response = "Your group is not registered yet" ;
+
+											} elseif ($check_status['IS_REGISTERED'] == 1) {
+												$fetch_pass = fm_check_pass($inserted_pass, $event['source']['groupId'], $db);
+
+												if ($fetch_pass['IS_PASS_MATCH'] == 0) {
+													$text_response = "You entered the wrong password. Please check again" ;
+												} elseif ($fetch_pass['IS_PASS_MATCH'] == 1) {
+													$target_unique_id = fm_get_unique_id($event['source']['groupId'], $db);
+													$target_gf_id_list = fm_get_gf_id_array($target_unique_id, $db);
+
+													while ($gf_to_delete = mysqli_fetch_array($target_gf_id_list)) {
+														$delete_query_linked_acc = "DELETE FROM LINKED_ACC WHERE GF_ID='" . $gf_to_delete['GF_ID'] . "'" ;
+														mysqli_query($db, $delete_query_linked_acc);
+													}
+
+													$delete_query_group_function = "DELETE FROM GROUP_FUNCTION WHERE UNIQUE_ID='" . $target_unique_id . "'";
+													mysqli_query($db, $delete_query_group_function);
+
+													$delete_query_group_information = "DELETE FROM GROUP_INFORMATION WHERE UNIQUE_ID='" . $target_unique_id . "'";
+													mysqli_query($db, $delete_query_group_information);
+													
+													$text_response = "Group Successfully Removed";	
+												
+												}
+												
+											}
+
+
+										}
+										
+			                    		mysqli_close($db);
+
+			                    		$client->replyMessage(array(
+						                        'replyToken' => $event['replyToken'],
+						                        'messages' => array(
+						                            array(
+						                                'type' => 'text',
+						                                'text' => $text_response
+						                            )
+						                        )
+						                ));
+
+									}
+									break;
+									
+								////////////////////////////////////	
+								// Only Works On Personal Account//
+								//////////////////////////////////
+
 								case '..mylink' :
 									if (isset($event['source']['userId'])) {
 
@@ -694,8 +822,17 @@
 									}
 									
 									break;
-												
-								// Content Following The Account Type (Personal / Group)
+
+								/////////////////////////////////////////	
+								// Works On Personal and Group Account//
+								///////////////////////////////////////
+								
+								// EMPTY
+
+								///////////////////////////////////////////////////////////
+								// Content Following The Account Type (Personal / Group)//
+								/////////////////////////////////////////////////////////
+
 								case '..help':
 									if (isset($event['source']['userId'])) {
 										$text_response = $help_personal ;
@@ -723,7 +860,10 @@
 
 									break;
 
-								// For fun only
+								//////////////////
+								// For fun only//
+								////////////////
+
 								case '..response':
 									$client->pushMessage(array(
 				                        'to' => 'C7103388573d2a713748de24a7396a662',
@@ -736,7 +876,11 @@
 				                    ));
 									break;
 
-								default: // When nothing is similar
+								//////////////////////////////
+								// When nothing is similar //
+								////////////////////////////
+
+								default: 
 									if (isset($event['source']['userId'])) {
 										$client->replyMessage(array(
 							                        'replyToken' => $event['replyToken'],

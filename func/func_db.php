@@ -1,8 +1,8 @@
 <?php
 	
-	//////////////////
+	////////////////
 	// Get Query //
-	//////////////////
+	///////////////
 
 	function fm_get_pass ($group_Id, $db_conf){
 
@@ -57,9 +57,56 @@
 
 	}
 
+	// MODIFIED
 	function fm_get_keyword_secure ($target_keyword, $group_Id, $db_conf){
 
 		$query = "SELECT `KEYWORD` FROM `GROUP_FUNCTION` WHERE UNIQUE_ID='" . $group_Id . "' AND KEYWORD='" . $target_keyword . "'";
+		$query_result = mysqli_query($db_conf, $query);
+
+		if ( mysqli_num_rows($query_result) == 0 ) {
+			return 0 ;
+		} else {
+			$query_fetch = mysqli_fetch_array($query_result);
+			$query_fetch_result = $query_fetch['KEYWORD'];
+			return $query_fetch_result ;
+		}
+
+	}
+
+	// NEW
+	function fm_get_gf_id_secure ($target_keyword, $group_Id, $db_conf){
+
+		$query = "SELECT `GF_ID` FROM `GROUP_FUNCTION` WHERE UNIQUE_ID='" . $group_Id . "' AND KEYWORD='" . $target_keyword . "'";
+		$query_result = mysqli_query($db_conf, $query);
+
+		if ( mysqli_num_rows($query_result) == 0 ) {
+			return 0 ;
+		} else {
+			$query_fetch = mysqli_fetch_array($query_result);
+			$query_fetch_result = $query_fetch['GF_ID'];
+			return $query_fetch_result ;
+		}
+
+	}
+
+	// NEW
+	function fm_get_gf_id_array ($unique_Id, $db_conf){
+
+		$query = "SELECT `GF_ID` FROM `GROUP_FUNCTION` WHERE UNIQUE_ID='" . $unique_Id . "'";
+		$query_result = mysqli_query($db_conf, $query);
+
+		if ( mysqli_num_rows($query_result) == 0 ) {
+			return 0 ;
+		} else {
+			return $query_result ;
+		}
+
+	}
+
+	// NEW
+	function fm_get_personal_id ($target_gf_id, $db_conf){
+
+		$query = "SELECT `PERSONAL_ID` FROM `LINKED_ACC` WHERE GF_ID='" . $target_gf_id . "'";
 		$query_result = mysqli_query($db_conf, $query);
 
 		if ( mysqli_num_rows($query_result) == 0 ) {
@@ -73,7 +120,20 @@
 
 	//////////////////
 	// Check Query //
-	//////////////////
+	////////////////
+
+	// NEW
+	function fm_check_linked_id ($target_gf_id, $db_conf){
+		$query = "SELECT COUNT(*) AS `LINKED_COUNT` FROM `LINKED_ACC` WHERE GF_ID='" . $target_gf_id . "'" ;
+		$query_result = mysqli_query($db_conf, $query);
+		$query_fetch = mysqli_fetch_array($query_result);
+
+		if ( $query_fetch['LINKED_COUNT'] == 0 ) {
+			return 0 ;
+		} elseif ( $query_fetch['LINKED_COUNT'] > 0 ) {
+			return 1 ;
+		}
+	}
 
 	function fm_check_unique_id ($group_Id, $db_conf){
 
@@ -134,9 +194,9 @@
 
 	}
 
-	//////////////////
+	///////////////////
 	// Insert Query //
-	//////////////////
+	/////////////////
 
 	function fm_insert_group_information ($pass, $group_Id, $group_description, $db_conf){
 
