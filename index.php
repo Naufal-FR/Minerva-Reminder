@@ -238,42 +238,31 @@
 
 								case '..createPing' :
 									if (isset($event['source']['groupId'])) {
-										$text_response = 'No message';
-
 										if (!isset($exploded_Message[1]) OR !isset($exploded_Message[2])) {
 											$text_response = 'Not enough information to create one.' . PHP_EOL . 'Need keyword and group pass' ;
-										
-										} else {
-											$registered_id = (int) fm_get_unique_id($event['source']['groupId'], $db) ;
-
-											if ( $registered_id == 0 ) {
+										} elseif (count($exploded_Message) == 3) {
+											$group_status = fm_check_unique_id($event['source']['groupId'], $db) ;
+											if ( $group_status == 0 ) {
 												$text_response = "Your group isn't registered yet" ;
 											} else {
-												$group_pass = fm_get_pass($event['source']['groupId'], $db);	
-												
-												if ($group_pass == $exploded_Message[2]) {
-
-													$check_result = fm_check_keyword($exploded_Message[1], $registered_id, $db);
-
+												$group_pass = fm_check_pass($exploded_Message[2], $event['source']['groupId'], $db);
+												if ($group_pass['IS_PASS_MATCH'] == 1) {
+													$unique_id = fm_get_unique_id($event['source']['groupId'], $db);
+													$check_result = fm_check_keyword($exploded_Message[1], $unique_id, $db);
 													if ($check_result == 0) {
-														fm_insert_group_function($exploded_Message[1], $registered_id, $db);
+														fm_insert_group_function($exploded_Message[1], $unique_id, $db);
 														$text_response = "New Ping Created" ;
 													} elseif($check_result == 1) {
 														$text_response = "Duplicate keyword detected" ;
 													}
-
-												
-												} elseif ($group_pass != $exploded_Message[2]) {
+												} elseif ($group_pass['IS_PASS_MATCH'] == 0) {
 													$text_response = 'You entered the wrong password' ;
-												
 												} 
 											}
-
-											
+										} elseif (count($exploded_Message) > 3){
+											$text_response = "Sorry, you can only create keyword with the length of one word. You might want to use underscore instead for the space";
 										}
-										
 			                    		mysqli_close($db);
-
 			                    		$client->replyMessage(array(
 						                        'replyToken' => $event['replyToken'],
 						                        'messages' => array(
@@ -282,8 +271,7 @@
 						                                'text' => $text_response
 						                            )
 						                        )
-						                ));
-											
+						                ));							
 									}
 									
 									break;
@@ -590,7 +578,6 @@
 									
 									break;
 
-								// NEW 
 								case '..remove':
 									if (isset($event['source']['groupId'])) {
 										
