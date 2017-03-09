@@ -890,6 +890,9 @@
 								// fm_create_log_data($event['source'], $exec_command);
 							}
 
+							if (is_resource($db) && get_resource_type($db) === 'mysql link') {
+								mysqli_close($db);
+							}
 
 						} catch (Exception $e) {
 	                		$text_response = "Sorry, An Error Just Occured" . PHP_EOL . $e->getMessage();	
