@@ -482,7 +482,6 @@
 
 												}
 
-
 								                $text_response = "Ping Success to " . $number_of_ping . " linked account" ;
 
 											} elseif ($register_status['IS_REGISTERED'] == 0) {
@@ -493,7 +492,11 @@
 
 					                    mysqli_close($db);
 
-										if (isset($exploded_Message[2]) AND isset($number_of_ping)) {
+					                    if ($number_of_ping == 0) {
+											$text_response = "Hmm ... nobody linked yet to that ping" ;
+										}
+
+										if (isset($exploded_Message[2]) AND $number_of_ping >= 1) {
 											$client->replyMessage(array(
 							                        'replyToken' => $event['replyToken'],
 							                        'messages' => array(
