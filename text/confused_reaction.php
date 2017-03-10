@@ -8,8 +8,7 @@
 		"(*˃ᆺ˂)",
 		"(´Д｀)",
 		"(>_<)",
-		"(´；ω；`)",
-		"(◕︿◕✿)"
+		"(´；ω；`)"
 	); 
 
 	$number_of_reaction = count($confused_reaction);
