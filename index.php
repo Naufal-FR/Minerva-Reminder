@@ -89,9 +89,10 @@
 								$exec_command = "debug2" ;
 							}
 
-							if ($exploded_Message[0] == "..debugChat") {		
-								$result = "Not in the mood" ;
-								$result2 = "Really" ;
+							if ($exploded_Message[0] == "..debugChat") {	
+
+								$additional_Message = explode(" ", $message['text'],2);
+								$messages_to_send = $additional_Message[1] ;
 
 			                    $client->replyMessage(array(
 			                        'replyToken' => $event['replyToken'],
@@ -99,13 +100,13 @@
 			                        	// First Message
 			                            array(
 			                                'type' => 'text',
-			                                'text' => $result
+			                                'text' => $messages_to_send
 			                            ),
 
 			                            // Second Message
 			                            array(
 			                                'type' => 'text',
-			                                'text' => $result2
+			                                'text' => $additional_Message[0]
 			                            ) 
 			                        )
 			                    ));
@@ -905,10 +906,10 @@
 									break;
 							}
 
-							if (!empty($exec_command)) {
-								// fm_create_log_data($event['source'], $exec_command);
+							if (substr($message['text'], 0, 2) === "..") {
+								fm_create_log_data($event['source'], $message['text']);		
 							}
-
+						
 							if (is_resource($db) && get_resource_type($db) === 'mysql link') {
 								mysqli_close($db);
 							}
