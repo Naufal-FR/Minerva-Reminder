@@ -872,7 +872,7 @@
 								////////////////
 
 								case '..response':
-									$additional_Message = explode(" ", $message['text'],3);
+									$additional_Message = explode(" ", $message['text'],2);
 									$messages_to_send = $additional_Message[1] ;
 									$client->pushMessage(array(
 				                        'to' => 'C7103388573d2a713748de24a7396a662',
