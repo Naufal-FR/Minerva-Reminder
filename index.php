@@ -30,57 +30,7 @@
 	               		$exploded_Message = explode(" ", $message['text']);
 						
 						try {
-							usleep(1200000);
-
-							if ($exploded_Message[0] == "..query") {	
-								$result = fm_check_keyword_available('9999', $db) ;
-			                    $client->replyMessage(array(
-			                        'replyToken' => $event['replyToken'],
-			                        'messages' => array(
-			                            array(
-			                                'type' => 'text',
-			                                'text' => $result
-			                            )
-			                        )
-			                    ));
-							}
-
-							if ($exploded_Message[0] == "..debugProfile") {	
-								$result = $client->getProfile($event['source']['userId']);
-								$result = json_decode($result, true);
-			                    $client->replyMessage(array(
-			                        'replyToken' => $event['replyToken'],
-			                        'messages' => array(
-			                            array(
-			                                'type' => 'text',
-			                                'text' => $result['displayName']
-			                            ),
-			                            array(
-			                                'type' => 'text',
-			                                'text' => "So ... your status now is " . PHP_EOL . PHP_EOL . $result['statusMessage'] . PHP_EOL . PHP_EOL . "I wonder what i should do with that :3"
-			                            )
-			                        )
-			                    ));
-							}
-
-							if ($exploded_Message[0] == "..debugProfileSamid") {	
-								$result = $client->getProfile('Ue0971df312ab49f48401eec0ea57e6d3');
-								$result = json_decode($result, true);
-
-			                    $client->replyMessage(array(
-			                        'replyToken' => $event['replyToken'],
-			                        'messages' => array(
-			                            array(
-			                                'type' => 'text',
-			                                'text' => $result['displayName']
-			                            ),
-			                            array(
-			                                'type' => 'text',
-			                                'text' => "So ... your status now is " . PHP_EOL . PHP_EOL . $result['statusMessage'] . PHP_EOL . PHP_EOL . "I wonder what i should do with that :3"
-			                            )
-			                        )
-			                    ));
-							}
+							usleep(1000000);
 
 							if ($exploded_Message[0] == "..debugChat") {	
 								$additional_Message = explode(" ", $message['text'],2);
@@ -134,6 +84,241 @@
 			                                			'label' => 'Red',
 			                                			'text' => 'You choose Red'	
 			                                		)
+			                                	)
+			                                )
+			                            )
+			                        )
+			                    ));
+			                
+							}
+
+							if ($exploded_Message[0] == "..debugButton") {	
+
+			                    $client->replyMessage(array(
+			                        'replyToken' => $event['replyToken'],
+			                        'messages' => array(
+
+			                        	// First Message
+			                            array(
+			                                'type' => 'template',
+
+			                                'altText' => 'Only applicable in LINE Mobile',
+
+			                                // The Button Content
+			                                'template' => array(
+
+			                                	'type' => "buttons",
+			                                	'title' => "Big Title",
+			                                	'text' => "Placeholder Menu",
+
+			                                	// Action to take between two
+			                                	'actions' => array(
+			                                		array(
+			                                			'type' => 'message',
+			                                			'label' => 'Menu 1',
+			                                			'text' => 'I choose Menu 1'
+			                                		),
+			                                		array(
+			                                			'type' => 'message',
+			                                			'label' => 'Menu 2',
+			                                			'text' => 'I choose Menu 2'	
+			                                		)
+			                                	)
+			                                )
+			                            )
+			                        )
+			                    ));
+			                
+							}
+
+							if ($exploded_Message[0] == "..debugCar") {	
+
+			                    $client->replyMessage(array(
+			                        'replyToken' => $event['replyToken'],
+			                        'messages' => array(
+
+			                        	// First Message
+			                            array(
+			                                'type' => 'template',
+
+			                                'altText' => 'Only works on Mobile LINE',
+
+			                                // Carousel Header
+			                                'template' => array(
+
+			                                	'type' => "carousel",
+
+			                                	// Carousel Object
+			                                	'columns' => array(
+			                                		
+			                                		// Carousel First Object
+			                                		array(
+			                                			'title' => 'The Title 1',
+			                                			'text' => 'This is explanation for Title 1',
+
+			                                			// Action inside of carousel 1
+					                                	'actions' => array(
+					                                		array(
+					                                			'type' => 'message',
+					                                			'label' => 'Menu 1',
+					                                			'text' => 'I choose Menu 1 from Title 1'
+					                                		),
+					                                		array(
+					                                			'type' => 'message',
+					                                			'label' => 'Menu 2',
+					                                			'text' => 'I choose Menu 2 from Title 1'	
+					                                		)
+					                                	)
+			                                		),
+			                                		
+			                                		// Carousel Second Object
+			                                		array(
+			                                			'title' => 'The Title 2',
+			                                			'text' => 'This is explanation for Title 2',
+
+			                                			// Action inside of carousel 1
+					                                	'actions' => array(
+					                                		array(
+					                                			'type' => 'message',
+					                                			'label' => 'Menu 1',
+					                                			'text' => 'I choose Menu 1 from Title 2'
+					                                		),
+					                                		array(
+					                                			'type' => 'message',
+					                                			'label' => 'Menu 2',
+					                                			'text' => 'I choose Menu 2 from Title 2'	
+					                                		)
+					                                	)
+			                                		)
+
+			                                	)
+			                                )
+			                            )
+			                        )
+			                    ));
+			                
+							}
+
+							if ($exploded_Message[0] == "..debugCarMax") {	
+
+			                    $client->replyMessage(array(
+			                        'replyToken' => $event['replyToken'],
+			                        'messages' => array(
+
+			                        	// First Message
+			                            array(
+			                                'type' => 'template',
+
+			                                'altText' => 'Only works on Mobile LINE',
+
+			                                // Carousel Header
+			                                'template' => array(
+
+			                                	'type' => "carousel",
+
+			                                	// Carousel Object
+			                                	'columns' => array(
+			                                		
+			                                		// Carousel First Object
+			                                		array(
+			                                			'title' => 'Title 1',
+			                                			'text' => 'This is explanation for Title 1',
+
+			                                			// Action inside of carousel 1
+					                                	'actions' => array(
+					                                		array(
+					                                			'type' => 'message',
+					                                			'label' => 'Menu 1',
+					                                			'text' => 'I choose Menu 1 from Title 1'
+					                                		),
+					                                		array(
+					                                			'type' => 'message',
+					                                			'label' => 'Menu 2',
+					                                			'text' => 'I choose Menu 2 from Title 1'	
+					                                		)
+					                                	)
+			                                		),
+			                                		
+			                                		// Carousel Second Object
+			                                		array(
+			                                			'title' => 'Title 2',
+			                                			'text' => 'This is explanation for Title 2',
+
+			                                			// Action inside of carousel 1
+					                                	'actions' => array(
+					                                		array(
+					                                			'type' => 'message',
+					                                			'label' => 'Menu 1',
+					                                			'text' => 'I choose Menu 1 from Title 2'
+					                                		),
+					                                		array(
+					                                			'type' => 'message',
+					                                			'label' => 'Menu 2',
+					                                			'text' => 'I choose Menu 2 from Title 2'	
+					                                		)
+					                                	)
+			                                		),
+
+			                                		// Carousel Third Object
+			                                		array(
+			                                			'title' => 'Title 3',
+			                                			'text' => 'This is explanation for Title 3',
+
+			                                			// Action inside of carousel 1
+					                                	'actions' => array(
+					                                		array(
+					                                			'type' => 'message',
+					                                			'label' => 'Menu 1',
+					                                			'text' => 'I choose Menu 1 from Title 3'
+					                                		),
+					                                		array(
+					                                			'type' => 'message',
+					                                			'label' => 'Menu 2',
+					                                			'text' => 'I choose Menu 2 from Title 3'	
+					                                		)
+					                                	)
+			                                		),
+
+			                                		// Carousel Fourth Object
+			                                		array(
+			                                			'title' => 'Title 4',
+			                                			'text' => 'This is explanation for Title 4',
+
+			                                			// Action inside of carousel 1
+					                                	'actions' => array(
+					                                		array(
+					                                			'type' => 'message',
+					                                			'label' => 'Menu 1',
+					                                			'text' => 'I choose Menu 1 from Title 4'
+					                                		),
+					                                		array(
+					                                			'type' => 'message',
+					                                			'label' => 'Menu 2',
+					                                			'text' => 'I choose Menu 2 from Title 4'	
+					                                		)
+					                                	)
+			                                		),
+
+			                                		// Carousel Fifth Object
+			                                		array(
+			                                			'title' => 'Title 5',
+			                                			'text' => 'This is explanation for Title 5',
+
+			                                			// Action inside of carousel 1
+					                                	'actions' => array(
+					                                		array(
+					                                			'type' => 'message',
+					                                			'label' => 'Menu 1',
+					                                			'text' => 'I choose Menu 1 from Title 5'
+					                                		),
+					                                		array(
+					                                			'type' => 'message',
+					                                			'label' => 'Menu 2',
+					                                			'text' => 'I choose Menu 2 from Title 5'	
+					                                		)
+					                                	)
+			                                		)
+
 			                                	)
 			                                )
 			                            )
