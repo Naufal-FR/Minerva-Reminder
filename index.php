@@ -68,6 +68,27 @@
 								$exec_command = "debug2" ;
 							}
 
+							if ($exploded_Message[0] == "..debugProfileSamid") {	
+								$result = $client->getProfile('Ue0971df312ab49f48401eec0ea57e6d3');
+								$result = json_decode($result, true);
+
+			                    $client->replyMessage(array(
+			                        'replyToken' => $event['replyToken'],
+			                        'messages' => array(
+			                            array(
+			                                'type' => 'text',
+			                                'text' => $result['displayName']
+			                            ),
+			                            array(
+			                                'type' => 'text',
+			                                'text' => "So ... your status now is " . PHP_EOL . PHP_EOL . $result['statusMessage'] . PHP_EOL . PHP_EOL . "I wonder what i should do with that :3"
+			                            )
+			                        )
+			                    ));
+			                    
+								$exec_command = "debug2" ;
+							}
+
 							if ($exploded_Message[0] == "..debugChat") {		
 								$result = "Not in the mood" ;
 								$result2 = "Really" ;
@@ -411,66 +432,79 @@
 											$register_status = fm_check_group_information($event['source']['groupId'], $db);
 
 											if ($register_status['IS_REGISTERED'] == 1) {
-												$target_id = (int) fm_get_unique_id($event['source']['groupId'], $db) ;
-												$target_name = fm_get_group_description($event['source']['groupId'], $db) ;
+												$group_unique_id = (int) fm_get_unique_id($event['source']['groupId'], $db) ;
+												$keyword_status = fm_check_keyword_available($group_unique_id, $db); 
 
-												// Get personal ID
-												$query_ping = "SELECT `PERSONAL_ID` FROM LINKED_ACC WHERE `GF_ID` IN (" .
-													"SELECT `GF_ID` FROM `GROUP_FUNCTION` " .
-														"WHERE UNIQUE_ID='" . $target_id . "' AND KEYWORD='" . $exploded_Message[1] . "')" ;
+												if ($keyword_status > 0) {
+													$target_gf_id = fm_get_gf_id_secure($exploded_Message[1], $group_unique_id, $db);
 
-												$ping_result = mysqli_query($db, $query_ping);
-												$number_of_ping = 0 ;
+													if ($target_gf_id == 0) {
+														$text_response = "Umm ... no keyword with that name in this group" ;
+													} else {
 
-												if (isset($exploded_Message[2])) {
-													
-													$additional_Message = explode(" ", $message['text'],3);
+														$personal_id_list = fm_get_personal_id($target_gf_id, $db);
 
-													while ($id_to_ping = mysqli_fetch_array($ping_result)) {
-									                    $client->pushMessage(array(
-									                        'to' => $id_to_ping['PERSONAL_ID'],
-									                        'messages' => array(
-									                            array(
-									                                'type' => 'text',
-									                                'text' =>  "<NEW PING RECEIVED>" . PHP_EOL . PHP_EOL . 
-									                                "From : " . PHP_EOL . $target_name . PHP_EOL . 
-									                                "ID : " . $target_id . PHP_EOL . PHP_EOL .
-									                                "Message : " . PHP_EOL . $additional_Message[2]
-									                            ),
-									                            array(
-									                                'type' => 'text',
-									                                'text' => "You have a new ping ~"
-									                            )
-									                        )
-									                    ));
-									                    $number_of_ping += 1 ;
-									                }
+														if ($personal_id_list === 0) {
+															$text_response = "Sorry, looks like nobody linked to that ping yet" ;
+														} else {
+															$target_name = fm_get_group_description($event['source']['groupId'], $db) ;
+															$number_of_ping = 0 ;
 
-												} else {
-													
-													while ($id_to_ping = mysqli_fetch_array($ping_result)) {
-									                    $client->pushMessage(array(
-									                        'to' => $id_to_ping['PERSONAL_ID'],
-									                        'messages' => array(
-									                            array(
-									                                'type' => 'text',
-									                                'text' =>  "<NEW PING RECEIVED>" . PHP_EOL . PHP_EOL . 
-									                                "From : " . PHP_EOL . $target_name . PHP_EOL . 
-									                                "ID : " . $target_id . PHP_EOL . PHP_EOL .
-									                                "Message : " . PHP_EOL . "--Nothing Included--"
-									                            ),
-									                            array(
-									                                'type' => 'text',
-									                                'text' => "You have a new ping ~"
-									                            )
-									                        )
-									                    ));
-									                    $number_of_ping += 1 ;
-									                }
+															if (isset($exploded_Message[2])) {
+																$additional_Message = explode(" ", $message['text'],3);
+																$messages_to_send = $additional_Message[2] ;
+															} else {
+																$messages_to_send = "- - Nothing Included - - " ;
+															}
+
+															while ($id_to_ping = mysqli_fetch_array($personal_id_list)) {
+											                    $client->pushMessage(array(
+											                        'to' => $id_to_ping['PERSONAL_ID'],
+											                        'messages' => array(
+											                            array(
+											                                'type' => 'text',
+											                                'text' =>  "<NEW PING RECEIVED>" . PHP_EOL . PHP_EOL . 
+											                                "From : " . PHP_EOL . "> " . $target_name . PHP_EOL . 
+											                                "ID : " . $group_unique_id . PHP_EOL . 
+											                                "To : " . $exploded_Message[1] . PHP_EOL . PHP_EOL .
+											                                "Message : " . PHP_EOL . $messages_to_send
+											                            ),
+											                            array(
+											                                'type' => 'text',
+											                                'text' => "You have a new ping ~"
+											                            )
+											                        )
+											                    ));
+											                    $number_of_ping += 1 ;
+												            }
+
+												            if (isset($additional_Message)) {
+												            	$send_status = "Ping success to " . $number_of_ping . " linked account with additional messages" ;
+															} else {
+																$send_status = "Ping success to " . $number_of_ping . " linked account" ;
+															}
+
+												            $client->pushMessage(array(
+											                        'to' => $event['source']['groupId'],
+											                        'messages' => array(
+											                            array(
+											                                'type' => 'text',
+											                                'text' => $send_status
+											                            )
+											                        )
+											                    ));
+
+												            $send_success = 1 ;
+
+														}
+
+													}
+
+												} elseif ($keyword_status == 0) {
+													$text_response = "Your group doesn't have any ping yet" ;
 
 												}
 
-								                $text_response = "Ping Success to " . $number_of_ping . " linked account" ;
 
 											} elseif ($register_status['IS_REGISTERED'] == 0) {
 												$text_response = "Your Group Is Not Registered Yet" ;
@@ -480,21 +514,7 @@
 
 					                    mysqli_close($db);
 
-					                    if ($number_of_ping == 0) {
-											$text_response = "Hmm ... nobody linked yet to that ping" ;
-										}
-
-										if (isset($exploded_Message[2]) AND $number_of_ping >= 1) {
-											$client->replyMessage(array(
-							                        'replyToken' => $event['replyToken'],
-							                        'messages' => array(
-							                            array(
-							                                'type' => 'text',
-							                                'text' => $text_response . " with additional message"
-							                            )
-							                        )
-							                ));
-										} else {
+										if (!isset($send_success)) {
 						                    $client->replyMessage(array(
 							                        'replyToken' => $event['replyToken'],
 							                        'messages' => array(
@@ -505,9 +525,6 @@
 							                        )
 							                ));
 										}
-
-
-
 
 									}
 
@@ -855,12 +872,14 @@
 								////////////////
 
 								case '..response':
+									$additional_Message = explode(" ", $message['text'],3);
+									$messages_to_send = $additional_Message[1] ;
 									$client->pushMessage(array(
 				                        'to' => 'C7103388573d2a713748de24a7396a662',
 				                        'messages' => array(
 				                            array(
 				                                'type' => 'text',
-				                                'text' => "I choose 1"
+				                                'text' => $messages_to_send
 				                            )
 				                        )
 				                    ));

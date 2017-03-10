@@ -118,6 +118,19 @@
 	// Check Query //
 	////////////////
 
+	function fm_check_gf_id_secure ($target_keyword, $unique_id, $db_conf){
+
+		$query = "SELECT COUNT(*) AS `IS_GF_CREATED` FROM `GROUP_FUNCTION` WHERE UNIQUE_ID='" . $unique_id . "' AND KEYWORD='" . $target_keyword . "'";
+		$query_result = mysqli_query($db_conf, $query);
+		$query_fetch = mysqli_fetch_array($query_result);
+
+		if ( $query_fetch['IS_GF_CREATED'] == 0 ) {
+			return 0 ;
+		} elseif ( $query_fetch['IS_GF_CREATED'] == 1 ) {
+			return 1 ;
+		}
+	}
+
 	function fm_check_linked_id ($target_gf_id, $db_conf){
 		$query = "SELECT COUNT(*) AS `LINKED_COUNT` FROM `LINKED_ACC` WHERE GF_ID='" . $target_gf_id . "'" ;
 		$query_result = mysqli_query($db_conf, $query);
