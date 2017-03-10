@@ -232,4 +232,20 @@
 		mysqli_query($db_conf, $query);
 
 	}
+
+	///////////////////
+	// Delete Query //
+	/////////////////
+
+	function fm_delete_info_via_gf_id ($gf_id, $target_table, $db_conf){
+
+		if ($target_table == "GROUP_FUNCTION") {
+			$query = "DELETE FROM GROUP_FUNCTION WHERE GF_ID='" . $gf_id . "'" ;
+		} elseif ($target_table == "LINKED_ACC") {
+			$query = "DELETE FROM LINKED_ACC WHERE GF_ID='" . $gf_id . "'" ;
+		} 
+		
+		mysqli_query($db_conf, $query);
+
+	}
 ?>
