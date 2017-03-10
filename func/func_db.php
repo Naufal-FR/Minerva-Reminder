@@ -244,4 +244,16 @@
 		mysqli_query($db_conf, $query);
 
 	}
+
+	function fm_delete_info_via_unique_id ($unique_id, $target_table, $db_conf){
+
+		if ($target_table == "GROUP_FUNCTION") {
+			$query = "DELETE FROM GROUP_FUNCTION WHERE UNIQUE_ID='" . $unique_id . "'" ;
+		} elseif ($target_table == "GROUP_INFORMATION") {
+			$query = "DELETE FROM GROUP_INFORMATION WHERE UNIQUE_ID='" . $unique_id . "'" ;
+		} 
+		
+		mysqli_query($db_conf, $query);
+
+	}
 ?>

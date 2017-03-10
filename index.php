@@ -601,15 +601,10 @@
 													$target_gf_id_list = fm_get_gf_id_array($target_unique_id, $db);
 
 													while ($gf_to_delete = mysqli_fetch_array($target_gf_id_list)) {
-														$delete_query_linked_acc = "DELETE FROM LINKED_ACC WHERE GF_ID='" . $gf_to_delete['GF_ID'] . "'" ;
-														mysqli_query($db, $delete_query_linked_acc);
+														fm_delete_info_via_gf_id($gf_to_delete['GF_ID'], "LINKED_ACC", $db);
 													}
-
-													$delete_query_group_function = "DELETE FROM GROUP_FUNCTION WHERE UNIQUE_ID='" . $target_unique_id . "'";
-													mysqli_query($db, $delete_query_group_function);
-
-													$delete_query_group_information = "DELETE FROM GROUP_INFORMATION WHERE UNIQUE_ID='" . $target_unique_id . "'";
-													mysqli_query($db, $delete_query_group_information);
+													fm_delete_info_via_unique_id($target_unique_id, "GROUP_FUNCTION", $db);
+													fm_delete_info_via_unique_id($target_unique_id, "GROUP_INFORMATION", $db);
 													
 													$text_response = "Group Successfully Removed";	
 												
