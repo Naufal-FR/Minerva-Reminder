@@ -124,11 +124,7 @@
 		$query_result = mysqli_query($db_conf, $query);
 		$query_fetch = mysqli_fetch_array($query_result);
 
-		if ( $query_fetch['IS_GF_CREATED'] == 0 ) {
-			return 0 ;
-		} elseif ( $query_fetch['IS_GF_CREATED'] == 1 ) {
-			return 1 ;
-		}
+		return $query_fetch;
 	}
 
 	function fm_check_linked_id ($target_gf_id, $db_conf){

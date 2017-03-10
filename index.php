@@ -34,7 +34,6 @@
 
 							if ($exploded_Message[0] == "..query") {	
 								$result = fm_check_keyword_available('9999', $db) ;
-
 			                    $client->replyMessage(array(
 			                        'replyToken' => $event['replyToken'],
 			                        'messages' => array(
@@ -44,13 +43,11 @@
 			                            )
 			                        )
 			                    ));
-			                    
 							}
 
 							if ($exploded_Message[0] == "..debugProfile") {	
 								$result = $client->getProfile($event['source']['userId']);
 								$result = json_decode($result, true);
-
 			                    $client->replyMessage(array(
 			                        'replyToken' => $event['replyToken'],
 			                        'messages' => array(
@@ -64,8 +61,6 @@
 			                            )
 			                        )
 			                    ));
-			                    
-								$exec_command = "debug2" ;
 							}
 
 							if ($exploded_Message[0] == "..debugProfileSamid") {	
@@ -85,15 +80,11 @@
 			                            )
 			                        )
 			                    ));
-			                    
-								$exec_command = "debug2" ;
 							}
 
 							if ($exploded_Message[0] == "..debugChat") {	
-
 								$additional_Message = explode(" ", $message['text'],2);
 								$messages_to_send = $additional_Message[1] ;
-
 			                    $client->replyMessage(array(
 			                        'replyToken' => $event['replyToken'],
 			                        'messages' => array(
@@ -110,8 +101,6 @@
 			                            ) 
 			                        )
 			                    ));
-			                
-								$exec_command = "debugChat" ;
 							}
 	
 							if ($exploded_Message[0] == "..debugConf") {	
@@ -320,21 +309,15 @@
 												} elseif ($fetch_pass['IS_PASS_MATCH'] == 1) {
 
 													$group_unique_id = fm_get_unique_id($event['source']['groupId'], $db);
-													
-													$check_delete = "SELECT COUNT(*) AS `IS_CREATED`, GF_ID FROM `GROUP_FUNCTION` WHERE UNIQUE_ID='" . 
-														$group_unique_id . "' AND KEYWORD='" . $target_keyword . "'" ;
+													$check_function = fm_check_gf_id_secure($target_keyword, $group_unique_id, $db);
 
-													$check_result = mysqli_query($db, $check_delete); 
-													$check_status = mysqli_fetch_array($check_result);
-
-													if ($check_status['IS_CREATED'] == 0) {
+													if ($check_function['IS_GF_CREATED'] == 0) {
 														$text_response = "There's no ping with that keyword" ;
-													} elseif ($check_status['IS_CREATED'] == 1) {
-														$delete_query_linked_acc = "DELETE FROM LINKED_ACC WHERE GF_ID='" . $check_status['GF_ID'] . "'" ;
-														mysqli_query($db, $delete_query_linked_acc);
-
-														$delete_query_group_function = "DELETE FROM GROUP_FUNCTION WHERE GF_ID='" . $check_status['GF_ID'] . "'";
-														mysqli_query($db, $delete_query_group_function);
+													} elseif ($check_function['IS_GF_CREATED'] == 1) {
+														$target_gf_id = fm_get_gf_id_secure($target_keyword, $group_unique_id, $db);
+														
+														fm_delete_info_via_gf_id($target_gf_id, "LINKED_ACC", $db);
+														fm_delete_info_via_gf_id($target_gf_id, "GROUP_FUNCTION", $db);
 														
 														$text_response = "Ping Successfully Deleted" ;	
 													}
