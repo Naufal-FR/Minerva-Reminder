@@ -32,7 +32,6 @@
 						try {
 							usleep(1000000);
 
-
 							////////////////////////////////////	
 							// Only Works On Personal Account//
 							//////////////////////////////////
@@ -1081,7 +1080,17 @@
 								////////////////////////////
 
 								default: 
-									if (isset($event['source']['userId'])) {
+									if (substr($message['text'], 0, 2) === "..") {
+										$client->replyMessage(array(
+							                        'replyToken' => $event['replyToken'],
+							                        'messages' => array(
+							                            array(
+							                                'type' => 'text',
+							                                'text' => 'No command with that name or you can only use it in personal or group chat'
+							                            )
+							                        )
+							                ));
+									} elseif (isset($event['source']['userId'])) {
 										$client->replyMessage(array(
 							                        'replyToken' => $event['replyToken'],
 							                        'messages' => array(
