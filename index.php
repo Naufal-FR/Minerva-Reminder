@@ -20,6 +20,7 @@
 
 	    switch ($event['type']) {
 
+	    	// Standard Message Event 
 	        case 'message':
 	            $message = $event['message'];
 
@@ -329,16 +330,71 @@
 						                        )
 						                    ));
 											break;
-										
+
+										case '..response':
+											$additional_Message = explode(" ", $message['text'],2);
+											$messages_to_send = $additional_Message[1] ;
+											$client->pushMessage(array(
+						                        'to' => 'C7103388573d2a713748de24a7396a662',
+						                        'messages' => array(
+						                            array(
+						                                'type' => 'text',
+						                                'text' => $messages_to_send
+						                            )
+						                        )
+						                    ));
+											break;
+
 										default:
 											# code...
 											break;
 
 									}	
 
-								}  
+								}
 
 								switch ($exploded_Message[0]) {		
+									case 'menu':
+						                    $client->replyMessage(array(
+						                        'replyToken' => $event['replyToken'],
+						                        'messages' => array(
+
+						                        	// First Message
+						                            array(
+						                                'type' => 'template',
+
+						                                'altText' => "If you use LINE in PC, type '..help' command to view this menu",
+
+						                                // The Button Content
+						                                'template' => array(
+
+						                                	'type' => "buttons",
+						                                	'title' => "Personal Command Menu",
+						                                	'text' => "Here's the list of all command you can give me here ~",
+
+						                                	// Action to take between the three
+						                                	'actions' => array(
+						                                		array(
+						                                			'type' => 'message',
+						                                			'label' => 'My Link',
+						                                			'text' => '..mylink'
+						                                		),
+						                                		array(
+						                                			'type' => 'postback',
+						                                			'label' => 'Link',
+						                                			'data' => 'personallink'	
+						                                		),
+						                                		array(
+						                                			'type' => 'postback',
+						                                			'label' => 'Unlink',
+						                                			'data' => 'personalunlink'	
+						                                		)
+						                                	)
+						                                )
+						                            )
+						                        )
+						                    ));
+											break;
 
 									case '..mylink' :
 										if (isset($event['source']['userId'])) {
@@ -1056,25 +1112,7 @@
 					                ));
 
 									break;
-
-								//////////////////
-								// For fun only//
-								////////////////
-
-								case '..response':
-									$additional_Message = explode(" ", $message['text'],2);
-									$messages_to_send = $additional_Message[1] ;
-									$client->pushMessage(array(
-				                        'to' => 'C7103388573d2a713748de24a7396a662',
-				                        'messages' => array(
-				                            array(
-				                                'type' => 'text',
-				                                'text' => $messages_to_send
-				                            )
-				                        )
-				                    ));
-									break;
-
+								
 								//////////////////////////////
 								// When nothing is similar //
 								////////////////////////////
@@ -1107,12 +1145,45 @@
 	                		$text_response = "Sorry, An Error Just Occured" . PHP_EOL . $e->getMessage();	
 						}
 	                    break;
-	            
+	           
 	                default:
 	                    error_log("Unsupporeted message type: " . $message['type']);
 	                    break;
 	            }
 	            break;
+
+            // Postback Event
+        	case 'postback':
+        		switch ($event['postback']['data']) {
+        			case 'personallink':
+        				$client->replyMessage(array(
+	                        'replyToken' => $event['replyToken'],
+	                        'messages' => array(
+	                            array(
+	                                'type' => 'text',
+	                                'text' => 'Personal Link Postback Registered'
+	                            )
+	                        )
+	                	));
+        				break;
+
+    				case 'personalunlink':
+					  	$client->replyMessage(array(
+	                        'replyToken' => $event['replyToken'],
+	                        'messages' => array(
+	                            array(
+	                                'type' => 'text',
+	                                'text' => 'Personal Unlink Postback Registered'
+	                            )
+	                        )
+	                	));
+    					break;
+        			
+        			default:
+        				# code...
+        				break;
+        		}
+        		break;
 	
 	        default:
 	            error_log("Unsupporeted event type: " . $event['type']);
