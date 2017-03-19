@@ -345,10 +345,6 @@
 						                    ));
 											break;
 
-										default:
-											# code...
-											break;
-
 									}	
 
 								}
@@ -388,6 +384,11 @@
 						                                			'type' => 'postback',
 						                                			'label' => 'Unlink',
 						                                			'data' => 'personalunlink'	
+						                                		),
+						                                		array(
+						                                			'type' => 'message',
+						                                			'label' => 'Help',
+						                                			'text' => '..help'	
 						                                		)
 						                                	)
 						                                )
@@ -659,34 +660,55 @@
 										
 										break;
 
-									case '..showId' :
+									case '..info' :
 										if (isset($event['source']['groupId'])) {
 
 											$search_id_res = (int) fm_get_unique_id( $event['source']['groupId'], $db) ;
 
-			                    			$text_response = $search_id_res ;
 				                    		
 				                    		if ( $search_id_res === 0 ) {
-				                    			$text_response = 'Your group is not registered yet' ;
+				                    			$text_response = array(
+				                    				'type' => 'text',
+							                        'text' => 'Your group is not registered yet'
+							                    );
+
+					                    		$client->replyMessage(array(
+							                        'replyToken' => $event['replyToken'],
+							                        'messages' => array($text_response)
+								                ));
+
+				                    		} else {
+				                    			$group_callsign = "Callsign : " . fm_get_group_description($event['source']['groupId'], $db);
+			                    				$group_id = "ID : " . $search_id_res ;
+			                    				$group_pass = "Pass : " . fm_get_pass($event['source']['groupId'], $db);
+			                    				
+			                    				$format_text1 = $group_callsign . PHP_EOL . $group_id . PHP_EOL . $group_pass ;
+
+			                    				$client->replyMessage(array(
+							                        'replyToken' => $event['replyToken'],
+							                        'messages' => array(
+							                        	// First Message
+							                            array(
+							                                'type' => 'text',
+							                                'text' => $format_text1
+							                            ),
+
+							                            // Second Message
+							                            array(
+							                                'type' => 'text',
+							                                'text' => "Here's your group information ~"
+							                            ) 
+							                        )
+							                    ));
 				                    		}
 
 				                    		mysqli_close($db);
-
-				                    		$client->replyMessage(array(
-							                        'replyToken' => $event['replyToken'],
-							                        'messages' => array(
-							                            array(
-							                                'type' => 'text',
-							                                'text' => $text_response
-							                            )
-							                        )
-							                ));
 												
 										}
 										
 										break;
 
-									case '..createPing' :
+									case '..create' :
 										if (isset($event['source']['groupId'])) {
 											if (!isset($exploded_Message[1]) OR !isset($exploded_Message[2])) {
 												$text_response = 'Not enough information to create one.' . PHP_EOL . 'Need keyword and group pass' ;
@@ -726,7 +748,7 @@
 										
 										break;
 
-									case '..deletePing':
+									case '..delete':
 										if (isset($event['source']['groupId'])) {
 											
 											if (!isset($exploded_Message[1]) OR !isset($exploded_Message[2])) {
@@ -782,7 +804,7 @@
 										}
 										break;
 
-									case '..listPing' :
+									case '..list' :
 										if (isset($event['source']['groupId'])) {
 
 											$search_id_res = fm_get_unique_id($event['source']['groupId'], $db) ;
@@ -1018,7 +1040,7 @@
 										
 										break;
 
-									case '..remove':
+									case '..revoke':
 										if (isset($event['source']['groupId'])) {
 											
 											if (!isset($exploded_Message[1])) {
@@ -1102,11 +1124,11 @@
 					                        'messages' => array(
 					                            array(
 					                                'type' => 'text',
-					                                'text' => "~ LIST OF SERVICES ~" . PHP_EOL . PHP_EOL . $text_response
+					                                'text' => "~COMMAND EXPLANATION~" . PHP_EOL . PHP_EOL . $text_response
 					                            ),
 					                            array(
 					                                'type' => 'text',
-					                                'text' => "Here's the list of what i can do here~"
+					                                'text' => "Here's the explanation of commands i can do here ~"
 					                            )
 					                        )
 					                ));
