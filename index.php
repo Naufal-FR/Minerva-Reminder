@@ -414,7 +414,7 @@
 					                                		array(
 					                                			'type' => 'postback',
 					                                			'label' => 'No',
-					                                			'data' => 'cancellink',
+					                                			'data' => 'cancel',
 					                                			'text' => 'No'
 					                                		)
 					                                	)
@@ -458,12 +458,12 @@
 						                                		array(
 						                                			'type' => 'postback',
 						                                			'label' => 'Link',
-						                                			'data' => 'personallink'	
+						                                			'data' => 'personalLink'				                                				
 						                                		),
 						                                		array(
 						                                			'type' => 'postback',
 						                                			'label' => 'Unlink',
-						                                			'data' => 'personalunlink'	
+						                                			'data' => 'personalUnlink'	
 						                                		),
 						                                		array(
 						                                			'type' => 'message',
@@ -665,6 +665,90 @@
 							////////////////////////////////
 
 							if (isset($event['source']['groupId'])) {
+
+								if (file_exists('./temp/' . $event['source']['groupId'] . '.txt')) {
+									$file_content = file('./temp/' . $event['source']['groupId'] . '.txt') ;
+
+									if (count($file_content) == 1) {
+
+										switch (trim($file_content[0])) {
+											case '..ping':
+												file_put_contents('./temp/' . $event['source']['groupId'] . '.txt', $exploded_Message[0] . PHP_EOL , FILE_APPEND | LOCK_EX);
+												$final_content = file('./temp/' . $event['source']['groupId'] . '.txt') ;
+												$execute_ping = trim( preg_replace( '/\s+/' , ' ', ( implode(" ", $final_content) ) ) ) ;
+												$client->pushMessage(array(
+							                        'to' => $event['source']['groupId'],
+							                        'messages' => array(
+
+							                        	// First Message
+							                            array(
+							                                'type' => 'template',
+
+							                                'altText' => 'Only applicable in LINE Mobile',
+
+							                                // The Confirm Content
+							                                'template' => array(
+
+							                                	'type' => "confirm",
+							                                	
+							                                	'text' => "You're going to ping ;" . PHP_EOL . PHP_EOL .
+							                                				"Ping Name : " . $final_content[1] . PHP_EOL . 
+							                                				"Is this correct ?",
+
+							                                	// Action to take between two
+							                                	'actions' => array(
+							                                		array(
+							                                			'type' => 'message',
+							                                			'label' => 'Yes',
+							                                			'text' => $execute_ping
+							                                		),
+							                                		array(
+							                                			'type' => 'postback',
+							                                			'label' => 'No',
+							                                			'data' => 'cancel',
+							                                			'text' => 'No'
+							                                		)
+							                                	)
+							                                )
+							                            )
+							                        )
+							                    ));
+
+												unlink('./temp/' . $event['source']['groupId'] . '.txt');
+												
+												break;
+
+											case '..create':
+												# code...
+												break;
+
+											case '..delete':
+												# code...
+												break;
+
+											case '..rename':
+												# code...
+												break;
+
+											case '..chgpass':
+												# code...
+												break;
+
+											case '..chgname':
+												# code...
+												break;
+
+											case '..revoke':
+												# code...
+												break;
+
+										}
+
+									} elseif (count($file_content) == 2) {
+										
+									}
+
+								}
 									
 								switch ($exploded_Message[0]) {		
 									case 'menu':
@@ -694,9 +778,9 @@
 					                                			// Action inside of carousel 1
 							                                	'actions' => array(
 							                                		array(
-							                                			'type' => 'message',
+							                                			'type' => 'postback',
 							                                			'label' => 'Ping!',
-							                                			'text' => 'To be ping function'
+							                                			'data' => 'groupPing'
 							                                		),
 							                                		array(
 							                                			'type' => 'message',
@@ -1382,7 +1466,8 @@
             // Postback Event
         	case 'postback':
         		switch ($event['postback']['data']) {
-        			case 'personallink':
+        			// For Personal User
+        			case 'personalLink':
         				file_put_contents('./temp/' . $event['source']['userId'] . '.txt', '..link' . PHP_EOL , LOCK_EX);
         				$client->replyMessage(array(
 	                        'replyToken' => $event['replyToken'],
@@ -1395,7 +1480,7 @@
 	                	));
         				break;
 
-    				case 'personalunlink':
+    				case 'personalUnlink':
 					  	file_put_contents('./temp/' . $event['source']['userId'] . '.txt', '..unlink' . PHP_EOL , LOCK_EX);
         				$client->replyMessage(array(
 	                        'replyToken' => $event['replyToken'],
@@ -1408,18 +1493,33 @@
 	                	));
     					break;
 
-					case 'cancellink':
+					// For Group User
+					case 'groupPing':
+						file_put_contents('./temp/' . $event['source']['groupId'] . '.txt', '..ping' . PHP_EOL , LOCK_EX);
+        				$client->replyMessage(array(
+	                        'replyToken' => $event['replyToken'],
+	                        'messages' => array(
+	                            array(
+	                                'type' => 'text',
+	                                'text' => 'Please enter the ping name now'
+	                            )
+	                        )
+	                	));
+						break;
+
+					// Universal Cancel Postback        			
+					case 'cancel':
 						$client->replyMessage(array(
 	                        'replyToken' => $event['replyToken'],
 	                        'messages' => array(
 	                            array(
 	                                'type' => 'text',
-	                                'text' => 'Okay, please choose link from menu again to input a new one'
+	                                'text' => 'Okay, please pick the menu again to input a new one'
 	                            )
 	                        )
 	                	));
 						break;
-        			
+
         			default:
         				# code...
         				break;
