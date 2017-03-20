@@ -349,6 +349,86 @@
 
 								}
 
+								if (file_exists('./temp/' . $event['source']['userId'] . '.txt')) {
+									$file_content = file('./temp/' . $event['source']['userId'] . '.txt') ;
+
+									if (count($file_content) == 1) {
+										$group_id = $exploded_Message[0] ;
+										file_put_contents('./temp/' . $event['source']['userId'] . '.txt', $group_id . PHP_EOL , FILE_APPEND | LOCK_EX);
+
+										if (trim($file_content[0]) == "..link") {
+											$detail = "link" ;
+										} elseif (trim($file_content[0]) == "..unlink") {
+											$detail = "unlink" ;
+										} 
+										
+										$client->pushMessage(array(
+					                        'to' => $event['source']['userId'],
+					                        'messages' => array(
+					                            array(
+					                                'type' => 'text',
+					                                'text' => "Please enter the ping name you want to " . $detail . " now"
+					                            )
+					                        )
+					                    ));
+									} elseif (count($file_content) == 2) {
+										$ping_name = $exploded_Message[0] ;
+										file_put_contents('./temp/' . $event['source']['userId'] . '.txt', $ping_name . PHP_EOL , FILE_APPEND | LOCK_EX);
+										
+										$final_content = file('./temp/' . $event['source']['userId'] . '.txt') ;
+										$execute_link = trim( preg_replace( '/\s+/' , ' ', ( implode(" ", $final_content) ) ) ) ;
+
+										if (trim($final_content[0]) == "..link") {
+											$execute_type = "link to" ;
+										} elseif (trim($final_content[0]) == "..unlink") {
+											$execute_type = "unlink from" ;
+										} 
+
+										$client->pushMessage(array(
+					                        'to' => $event['source']['userId'],
+					                        'messages' => array(
+
+					                        	// First Message
+					                            array(
+					                                'type' => 'template',
+
+					                                'altText' => 'Only applicable in LINE Mobile',
+
+					                                // The Confirm Content
+					                                'template' => array(
+
+					                                	'type' => "confirm",
+					                                	
+					                                	'text' => "You're going to " . $execute_type .  ";" . PHP_EOL . PHP_EOL .
+					                                				"Group ID : " . $final_content[1] .  
+					                                				"Ping Name : " . $final_content[2] . PHP_EOL . 
+					                                				"Is this correct ?",
+
+					                                	// Action to take between two
+					                                	'actions' => array(
+					                                		array(
+					                                			'type' => 'message',
+					                                			'label' => 'Yes',
+					                                			'text' => $execute_link
+					                                		),
+					                                		array(
+					                                			'type' => 'postback',
+					                                			'label' => 'No',
+					                                			'data' => 'cancellink',
+					                                			'text' => 'No'
+					                                		)
+					                                	)
+					                                )
+					                            )
+					                        )
+					                    ));
+									
+										unlink('./temp/' . $event['source']['userId'] . '.txt');
+									
+									}
+
+								}
+
 								switch ($exploded_Message[0]) {		
 									case 'menu':
 						                    $client->replyMessage(array(
@@ -587,6 +667,131 @@
 							if (isset($event['source']['groupId'])) {
 									
 								switch ($exploded_Message[0]) {		
+									case 'menu':
+					                    $client->replyMessage(array(
+					                        'replyToken' => $event['replyToken'],
+					                        'messages' => array(
+
+					                        	// First Message
+					                            array(
+					                                'type' => 'template',
+
+					                                'altText' => "If you use LINE in PC, type '..help' command to view this version menu",
+
+					                                // Carousel Header
+					                                'template' => array(
+
+					                                	'type' => "carousel",
+
+					                                	// Carousel Object
+					                                	'columns' => array(
+					                                		
+					                                		// Carousel First Object
+					                                		array(
+					                                			'title' => "Group Menu (1 of 4)",
+					                                			'text' => 'Common function of me ~',
+
+					                                			// Action inside of carousel 1
+							                                	'actions' => array(
+							                                		array(
+							                                			'type' => 'message',
+							                                			'label' => 'Ping!',
+							                                			'text' => 'To be ping function'
+							                                		),
+							                                		array(
+							                                			'type' => 'message',
+							                                			'label' => 'Ping List',
+							                                			'text' => '..list'	
+							                                		),
+							                                		array(
+							                                			'type' => 'message',
+							                                			'label' => 'Help',
+							                                			'text' => '..help'	
+							                                		)
+							                                	)
+					                                		),
+					                                		
+					                                		// Carousel Second Object
+					                                		array(
+					                                			'title' => "Group Menu (2 of 4)",
+					                                			'text' => 'Command used for Group Management',
+
+					                                			// Action inside of carousel 2
+							                                	'actions' => array(
+							                                		array(
+							                                			'type' => 'message',
+							                                			'label' => 'Group Info',
+							                                			'text' => '..info'
+							                                		),
+							                                		array(
+							                                			'type' => 'message',
+							                                			'label' => 'Change Callsign',
+							                                			'text' => 'To be change callsign function'	
+							                                		),
+							                                		array(
+							                                			'type' => 'message',
+							                                			'label' => 'Change Pass',
+							                                			'text' => 'To be change pass function'	
+							                                		)
+							                                	)
+					                                		),
+
+					                                		// Carousel Third Object
+					                                		array(
+					                                			'title' => "Group Menu (3 of 4)",
+					                                			'text' => 'Command used for Ping Management',
+
+					                                			// Action inside of carousel 3
+							                                	'actions' => array(
+							                                		array(
+							                                			'type' => 'message',
+							                                			'label' => 'Create Ping',
+							                                			'text' => 'To be create ping function'
+							                                		),
+							                                		array(
+							                                			'type' => 'message',
+							                                			'label' => 'Rename Ping',
+							                                			'text' => 'To be rename ping function'	
+							                                		),
+							                                		array(
+							                                			'type' => 'message',
+							                                			'label' => 'Delete Ping',
+							                                			'text' => 'To be delete ping function'	
+							                                		)
+							                                	)
+					                                		),
+
+					                                		// Carousel Fourth Object
+					                                		array(
+					                                			'title' => "Group Menu (4 of 4)",
+					                                			'text' => 'Command used for Group Setup and Feedback',
+
+					                                			// Action inside of carousel 4
+							                                	'actions' => array(
+							                                		array(
+							                                			'type' => 'message',
+							                                			'label' => 'Revoke',
+							                                			'text' => 'To be revoke command function'
+							                                		),
+							                                		array(
+							                                			'type' => 'message',
+							                                			'label' => 'About Me',
+							                                			'text' => 'Information about me'	
+							                                		),
+							                                		array(
+							                                			'type' => 'message',
+							                                			'label' => 'Feedback Me',
+							                                			'text' => 'You can feedback me from one of the following way :'	
+							                                		)
+							                                	)
+					                                		)
+
+					                                	)
+					                                )
+					                            )
+					                        )
+					                    ));
+										break;
 
 									case '..request':
 										if (isset($event['source']['groupId'])) {
@@ -930,14 +1135,14 @@
 																}
 
 													            $client->pushMessage(array(
-												                        'to' => $event['source']['groupId'],
-												                        'messages' => array(
-												                            array(
-												                                'type' => 'text',
-												                                'text' => $send_status
-												                            )
-												                        )
-												                    ));
+											                        'to' => $event['source']['groupId'],
+											                        'messages' => array(
+											                            array(
+											                                'type' => 'text',
+											                                'text' => $send_status
+											                            )
+											                        )
+											                    ));
 
 													            $send_success = 1 ;
 
@@ -1139,20 +1344,20 @@
 								// When nothing is similar //
 								////////////////////////////
 
-								default: 
-									if (isset($event['source']['userId'])) {
-										$client->replyMessage(array(
-							                        'replyToken' => $event['replyToken'],
-							                        'messages' => array(
-							                            array(
-							                                'type' => 'text',
-							                                'text' => $confused_reaction[rand(0, $number_of_reaction - 1)]
-							                            )
-							                        )
-							                ));
-									} 
+								// default: 
+								// 	if (isset($event['source']['userId'])) {
+								// 		$client->replyMessage(array(
+							 //                        'replyToken' => $event['replyToken'],
+							 //                        'messages' => array(
+							 //                            array(
+							 //                                'type' => 'text',
+							 //                                'text' => $confused_reaction[rand(0, $number_of_reaction - 1)]
+							 //                            )
+							 //                        )
+							 //                ));
+								// 	} 
 									
-									break;
+								// 	break;
 							}
 
 							if (substr($message['text'], 0, 2) === "..") {
@@ -1178,28 +1383,42 @@
         	case 'postback':
         		switch ($event['postback']['data']) {
         			case 'personallink':
+        				file_put_contents('./temp/' . $event['source']['userId'] . '.txt', '..link' . PHP_EOL , LOCK_EX);
         				$client->replyMessage(array(
 	                        'replyToken' => $event['replyToken'],
 	                        'messages' => array(
 	                            array(
 	                                'type' => 'text',
-	                                'text' => 'Personal Link Postback Registered'
+	                                'text' => 'Please enter your group ID now'
 	                            )
 	                        )
 	                	));
         				break;
 
     				case 'personalunlink':
-					  	$client->replyMessage(array(
+					  	file_put_contents('./temp/' . $event['source']['userId'] . '.txt', '..unlink' . PHP_EOL , LOCK_EX);
+        				$client->replyMessage(array(
 	                        'replyToken' => $event['replyToken'],
 	                        'messages' => array(
 	                            array(
 	                                'type' => 'text',
-	                                'text' => 'Personal Unlink Postback Registered'
+	                                'text' => 'Please enter your group ID now'
 	                            )
 	                        )
 	                	));
     					break;
+
+					case 'cancellink':
+						$client->replyMessage(array(
+	                        'replyToken' => $event['replyToken'],
+	                        'messages' => array(
+	                            array(
+	                                'type' => 'text',
+	                                'text' => 'Okay, please choose link from menu again to input a new one'
+	                            )
+	                        )
+	                	));
+						break;
         			
         			default:
         				# code...
