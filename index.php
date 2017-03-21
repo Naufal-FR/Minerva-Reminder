@@ -351,6 +351,7 @@
 
 								}
 
+								// Interactive Component
 								if (file_exists('./temp/' . $event['source']['userId'] . '.txt')) {
 									$file_content = file('./temp/' . $event['source']['userId'] . '.txt') ;
 
@@ -431,6 +432,7 @@
 
 								}
 
+								// Core Function
 								switch ($exploded_Message[0]) {		
 									case 'menu':
 						                    $client->replyMessage(array(
@@ -668,6 +670,7 @@
 
 							if (isset($event['source']['groupId'])) {
 
+								// Interactive Component
 								if (file_exists('./temp/' . $event['source']['groupId'] . '.txt')) {
 									$file_content = file('./temp/' . $event['source']['groupId'] . '.txt') ;
 
@@ -791,6 +794,7 @@
 
 								}
 									
+								// Core Function
 								switch ($exploded_Message[0]) {		
 									case 'menu':
 					                    $client->replyMessage(array(
