@@ -277,4 +277,12 @@
 		mysqli_query($db_conf, $query);
 
 	}
+
+	function fm_update_keyword ($unique_id, $old_name, $new_name, $db_conf){
+
+		$query = "UPDATE `GROUP_FUNCTION` SET KEYWORD='" . $new_name . "' WHERE UNIQUE_ID='" . $unique_id . "' AND KEYWORD='" . $old_name . "'" ;
+		
+		mysqli_query($db_conf, $query);
+
+	}
 ?>
