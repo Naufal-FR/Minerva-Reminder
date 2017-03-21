@@ -857,7 +857,7 @@
 
 												unlink('./temp/' . $event['source']['groupId'] . '.txt');
 												break;
-										
+
 											case '..delete':
 												file_put_contents('./temp/' . $event['source']['groupId'] . '.txt', $exploded_Message[0] . PHP_EOL , FILE_APPEND | LOCK_EX);
 												$final_content = file('./temp/' . $event['source']['groupId'] . '.txt') ;
@@ -944,8 +944,8 @@
 					                                		
 					                                		// Carousel First Object
 					                                		array(
-					                                			'title' => "Group Menu (1 of 4)",
-					                                			'text' => 'Common function of me ~',
+					                                			'title' => "Group Menu (1 of 5)",
+					                                			'text' => 'Most common command you might want to use',
 
 					                                			// Action inside of carousel 1
 							                                	'actions' => array(
@@ -961,40 +961,40 @@
 							                                		),
 							                                		array(
 							                                			'type' => 'message',
-							                                			'label' => 'Help',
-							                                			'text' => '..help'	
+							                                			'label' => 'Group Info',
+							                                			'text' => '..info'	
 							                                		)
 							                                	)
 					                                		),
 					                                		
 					                                		// Carousel Second Object
 					                                		array(
-					                                			'title' => "Group Menu (2 of 4)",
+					                                			'title' => "Group Menu (2 of 5)",
 					                                			'text' => 'Command used for Group Management',
 
 					                                			// Action inside of carousel 2
 							                                	'actions' => array(
 							                                		array(
 							                                			'type' => 'message',
-							                                			'label' => 'Group Info',
-							                                			'text' => '..info'
-							                                		),
-							                                		array(
-							                                			'type' => 'message',
-							                                			'label' => 'Change Callsign',
+							                                			'label' => 'Change Nickname',
 							                                			'text' => 'To be change callsign function'	
 							                                		),
 							                                		array(
 							                                			'type' => 'message',
 							                                			'label' => 'Change Pass',
 							                                			'text' => 'To be change pass function'	
+							                                		),
+							                                		array(
+							                                			'type' => 'message',
+							                                			'label' => 'Delete Group',
+							                                			'text' => 'groupRevoke'	
 							                                		)
 							                                	)
 					                                		),
 
 					                                		// Carousel Third Object
 					                                		array(
-					                                			'title' => "Group Menu (3 of 4)",
+					                                			'title' => "Group Menu (3 of 5)",
 					                                			'text' => 'Command used for Ping Management',
 
 					                                			// Action inside of carousel 3
@@ -1019,15 +1019,15 @@
 
 					                                		// Carousel Fourth Object
 					                                		array(
-					                                			'title' => "Group Menu (4 of 4)",
-					                                			'text' => 'Command used for Group Setup and Feedback',
+					                                			'title' => "Group Menu (4 of 5)",
+					                                			'text' => "Command used for Bot Feedback & Help",
 
 					                                			// Action inside of carousel 4
 							                                	'actions' => array(
 							                                		array(
-							                                			'type' => 'postback',
-							                                			'label' => 'Revoke',
-							                                			'data' => 'groupRevoke'
+							                                			'type' => 'message',
+							                                			'label' => 'Help',
+							                                			'text' => '..help'	
 							                                		),
 							                                		array(
 							                                			'type' => 'message',
@@ -1038,6 +1038,31 @@
 							                                			'type' => 'message',
 							                                			'label' => 'Feedback Me',
 							                                			'text' => 'You can feedback me from one of the following way :'	
+							                                		)
+							                                	)
+					                                		),
+
+					                                		// Carousel Fifth Object
+					                                		array(
+					                                			'title' => "Group Menu (5 of 5)",
+					                                			'text' => "Miscellaneous Command for your group",
+
+					                                			// Action inside of carousel 5
+							                                	'actions' => array(
+							                                		array(
+							                                			'type' => 'message',
+							                                			'label' => 'Who Link',
+							                                			'text' => 'To Be Who Link Command Function'	
+							                                		),
+							                                		array(
+							                                			'type' => 'message',
+							                                			'label' => 'Random Facts',
+							                                			'text' => 'To Be Random Facts Function'	
+							                                		),
+							                                		array(
+							                                			'type' => 'message',
+							                                			'label' => '~Reserved~',
+							                                			'text' => "Reserved for future function :)"	
 							                                		)
 							                                	)
 					                                		)
@@ -1139,7 +1164,7 @@
 								                ));
 
 				                    		} else {
-				                    			$group_callsign = "Callsign : " . fm_get_group_description($event['source']['groupId'], $db);
+				                    			$group_callsign = "Nickname : " . fm_get_group_description($event['source']['groupId'], $db);
 			                    				$group_id = "ID : " . $search_id_res ;
 			                    				$group_pass = "Pass : " . fm_get_pass($event['source']['groupId'], $db);
 			                    				
