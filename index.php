@@ -758,7 +758,48 @@
 												break;
 
 											case '..chgpass':
-												# code...
+												$new_pass = $exploded_Message[0] ;
+												file_put_contents('./temp/' . $event['source']['groupId'] . '.txt', $new_pass . PHP_EOL , FILE_APPEND | LOCK_EX);
+												
+												$final_content = file('./temp/' . $event['source']['groupId'] . '.txt') ;
+												$execute_ping = trim( preg_replace( '/\s+/' , ' ', ( implode(" ", $final_content) ) ) ) ;
+
+												$client->pushMessage(array(
+							                        'to' => $event['source']['groupId'],
+							                        'messages' => array(
+
+							                        	// First Message
+							                            array(
+							                                'type' => 'template',
+
+							                                'altText' => 'Only applicable in LINE Mobile',
+
+							                                // The Confirm Content
+							                                'template' => array(
+
+							                                	'type' => "confirm",
+							                                	
+							                                	'text' => "You're going to change group pass into " . $final_content[1] . PHP_EOL . 
+							                                				"Is it okay ?",
+
+							                                	// Action to take between two
+							                                	'actions' => array(
+							                                		array(
+							                                			'type' => 'message',
+							                                			'label' => 'Yes',
+							                                			'text' => $execute_ping
+							                                		),
+							                                		array(
+							                                			'type' => 'postback',
+							                                			'label' => 'No',
+							                                			'data' => 'cancel',
+							                                			'text' => 'No'
+							                                		)
+							                                	)
+							                                )
+							                            )
+							                        )
+							                    ));
 												break;
 
 											case '..chgname':
@@ -908,10 +949,6 @@
 												# code...
 												break;
 
-											case '..chgpass':
-												# code...
-												break;
-
 											case '..chgname':
 												# code...
 												break;
@@ -980,9 +1017,9 @@
 							                                			'text' => 'To be change callsign function'	
 							                                		),
 							                                		array(
-							                                			'type' => 'message',
+							                                			'type' => 'postback',
 							                                			'label' => 'Change Pass',
-							                                			'text' => 'To be change pass function'	
+							                                			'data' => 'changePass'	
 							                                		),
 							                                		array(
 							                                			'type' => 'message',
@@ -1271,8 +1308,6 @@
 													}
 													
 												}
-
-
 											}
 											
 				                    		mysqli_close($db);
@@ -1577,6 +1612,86 @@
 										}
 										break;
 									
+									case '..rename':
+										# code...
+										break;
+
+									case '..chgname':
+										if (isset($event['source']['groupId'])) {
+											if (!isset($exploded_Message[1]) AND !isset($exploded_Message[2])) {
+												$text_response = 'Not enough information to change group nickname.' . PHP_EOL . PHP_EOL . 'Need the new group name and group pass' ;
+											} else {											
+
+												$check_status = fm_check_group_information($event['source']['groupId'], $db);
+
+												if ($check_status['IS_REGISTERED'] == 0) {
+													$text_response = "Your group is not registered yet" ;
+
+												} elseif ($check_status['IS_REGISTERED'] == 1) {
+													$pass = $exploded_Message[count($exploded_Message)-1];
+													$fetch_pass = fm_check_pass($pass, $event['source']['groupId'], $db);
+
+													if ($fetch_pass['IS_PASS_MATCH'] == 0) {
+														$text_response = "You entered the wrong password. Please check again" ;
+													} elseif ($fetch_pass['IS_PASS_MATCH'] == 1) {
+														
+														$removed_command = explode(" ", $message['text'],2);
+														$new_name_array = explode(" ", $removed_command[1],-1);
+														$new_name = implode(" ", $new_name_array);
+
+														$unique_id = fm_get_unique_id($event['source']['groupId'], $db);
+														fm_update_description($unique_id, $new_name, $db);
+
+														$text_response = "Group Nickname Successfully Changed";
+													}
+													
+												}
+											}
+				                    		mysqli_close($db);
+
+			                    			$client->replyMessage(array(
+							                        'replyToken' => $event['replyToken'],
+							                        'messages' => array(
+							                            array(
+							                                'type' => 'text',
+							                                'text' => $text_response 
+							                            )
+							                        )
+							                ));
+			                    						
+										}
+										break;
+
+									case '..chgpass':
+										if (isset($event['source']['groupId'])) {
+											if (!isset($exploded_Message[1])) {
+												$text_response = 'Not enough information to change pass.' . PHP_EOL . PHP_EOL . 'Need the new pass' ;
+											} else {
+												$check_group = fm_check_unique_id($event['source']['groupId'], $db);
+												if ( $check_group == 0 ) {
+													$text_response = "Your Group Isn't Registered Yet" ;
+												} else {
+													$unique_id = fm_get_unique_id($event['source']['groupId'], $db);
+													$new_pass = $exploded_Message[1] ;
+													fm_update_pass($unique_id, $new_pass, $db);
+													$text_response = "Group Pass Successfully Changed" ;
+												}
+											}
+				                    		mysqli_close($db);
+
+			                    			$client->replyMessage(array(
+							                        'replyToken' => $event['replyToken'],
+							                        'messages' => array(
+							                            array(
+							                                'type' => 'text',
+							                                'text' => $text_response 
+							                            )
+							                        )
+							                ));
+			                    						
+										}
+										break;
+
 									default:
 										# code...
 										break;
@@ -1737,7 +1852,20 @@
 	                        'messages' => array(
 	                            array(
 	                                'type' => 'text',
-	                                'text' => 'Please enter the ping name you want to delete'
+	                                'text' => 'Please enter the ping name you want to delete now'
+	                            )
+	                        )
+	                	));
+						break;
+
+					case 'changePass':
+						file_put_contents('./temp/' . $event['source']['groupId'] . '.txt', '..chgpass' . PHP_EOL , LOCK_EX);
+        				$client->replyMessage(array(
+	                        'replyToken' => $event['replyToken'],
+	                        'messages' => array(
+	                            array(
+	                                'type' => 'text',
+	                                'text' => 'Please enter the new pass now'
 	                            )
 	                        )
 	                	));

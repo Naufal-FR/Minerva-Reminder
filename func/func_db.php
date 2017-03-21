@@ -256,4 +256,25 @@
 		mysqli_query($db_conf, $query);
 
 	}
+
+
+	///////////////////
+	// Update Query //
+	/////////////////
+
+	function fm_update_pass ($unique_id, $new_pass, $db_conf){
+
+		$query = "UPDATE GROUP_INFORMATION SET PASS='" . $new_pass . "' WHERE UNIQUE_ID='" . $unique_id . "'" ;
+		
+		mysqli_query($db_conf, $query);
+
+	}
+
+	function fm_update_description ($unique_id, $new_name, $db_conf){
+
+		$query = "UPDATE GROUP_INFORMATION SET GROUP_DESCRIPTION='" . $new_name . "' WHERE UNIQUE_ID='" . $unique_id . "'" ;
+		
+		mysqli_query($db_conf, $query);
+
+	}
 ?>

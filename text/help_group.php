@@ -13,16 +13,16 @@
 			"EX : ..list" . PHP_EOL . PHP_EOL .
 
 		"4) ..ping [Ping name] *[Additonal Message]" . PHP_EOL . PHP_EOL . 
-			"> Initiate ping on the [Ping Name]. Every member linked to that [Ping Name] will be notified personally by me. You can also add additional messages after the ping name to provide better information for peoples linked to that ping" . PHP_EOL . PHP_EOL .
-			"EX : ..ping MyPingName" . PHP_EOL . "..ping MyPingName We have something urgent to discuss" . PHP_EOL . PHP_EOL .
+			"> Initiate ping on [Ping Name]. Every member linked to that [Ping Name] will be notified personally by me. You can also add additional messages after the ping name to provide better information linked peoples" . PHP_EOL . PHP_EOL .
+			"EX : ..ping MyPingName" . PHP_EOL . "..ping MyPingName Something urgent happen" . PHP_EOL . PHP_EOL .
 		
 		"5) ..create [PingName] [PASS]" . "" . PHP_EOL . PHP_EOL . 
 			"> Create a new ping for your group that your group member can use to link. For now you cannot create ping with space in it" . PHP_EOL . PHP_EOL . 
 			"EX : ..create GroupNewPing 12345" . PHP_EOL . PHP_EOL . 
 		
-		"6) ..rename [OldPingName] [NewPingName]" . "" . PHP_EOL . PHP_EOL . 
+		"6) ..rename [OldPingName] [NewPingName] [PASS]" . "" . PHP_EOL . PHP_EOL . 
 			"> Changes an existing ping into a new name. You cannot have a duplicate name" . PHP_EOL . PHP_EOL . 
-			"EX : ..rename GroupPing NewGroupPing" . PHP_EOL . PHP_EOL . 
+			"EX : ..rename GroupPing NewGroupPing 12345" . PHP_EOL . PHP_EOL . 
 
 		"7) ..delete [PingName] [PASS]" . "" . PHP_EOL . PHP_EOL . 
 			"> Delete a ping from your group. All member linked to that ping will be automatically unlinked." . PHP_EOL . PHP_EOL . 
@@ -40,11 +40,11 @@
 			"> Shows all the explanation for each command depending if request sent from group or personal chat." . PHP_EOL . PHP_EOL . 
 			"EX : ..help" . PHP_EOL . PHP_EOL .
 
-		"11) ..chgname [New Name]" . "" . PHP_EOL . PHP_EOL . 
+		"11) ..chgname [New Name] [PASS]" . "" . PHP_EOL . PHP_EOL . 
 			"> Changes group nickname into a new one." . PHP_EOL . PHP_EOL . 
-			"EX : ..chgname Group New Name" . PHP_EOL . PHP_EOL .
+			"EX : ..chgname Group New Name 12345" . PHP_EOL . PHP_EOL .
 
-		"12) ..chgpass [New Pass]" . "" . PHP_EOL . PHP_EOL . 
+		"12) ..chgpass [NewPass]" . "" . PHP_EOL . PHP_EOL . 
 			"> Changes group password into a new one." . PHP_EOL . PHP_EOL . 
 			"EX : ..chgpass 54321" . PHP_EOL
 		 ; 
