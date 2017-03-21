@@ -803,7 +803,18 @@
 												break;
 
 											case '..chgname':
-												# code...
+												$new_nick = $message['text'] ;
+												file_put_contents('./temp/' . $event['source']['groupId'] . '.txt', $new_nick . PHP_EOL , FILE_APPEND | LOCK_EX);
+												
+												$client->pushMessage(array(
+							                        'to' => $event['source']['groupId'],
+							                        'messages' => array(
+							                            array(
+							                                'type' => 'text',
+							                                'text' => "Please enter your group pass now"
+							                            )
+							                        )
+							                    ));
 												break;
 
 											case '..revoke':
@@ -950,7 +961,47 @@
 												break;
 
 											case '..chgname':
-												# code...
+												file_put_contents('./temp/' . $event['source']['groupId'] . '.txt', $exploded_Message[0] . PHP_EOL , FILE_APPEND | LOCK_EX);
+												$final_content = file('./temp/' . $event['source']['groupId'] . '.txt') ;
+												$execute_ping = trim( preg_replace( '/\s+/' , ' ', ( implode(" ", $final_content) ) ) ) ;
+												$client->pushMessage(array(
+							                        'to' => $event['source']['groupId'],
+							                        'messages' => array(
+
+							                        	// First Message
+							                            array(
+							                                'type' => 'template',
+
+							                                'altText' => 'Only applicable in LINE Mobile',
+
+							                                // The Confirm Content
+							                                'template' => array(
+
+							                                	'type' => "confirm",
+							                                	
+							                                	'text' => "You're going to change group nickname into ;" . PHP_EOL . PHP_EOL . "New Name : " . $final_content[1] . PHP_EOL . 
+							                                				"Is it okay ?",
+
+							                                	// Action to take between two
+							                                	'actions' => array(
+							                                		array(
+							                                			'type' => 'message',
+							                                			'label' => 'Yes',
+							                                			'text' => $execute_ping
+							                                		),
+							                                		array(
+							                                			'type' => 'postback',
+							                                			'label' => 'No',
+							                                			'data' => 'cancel',
+							                                			'text' => 'No'
+							                                		)
+							                                	)
+							                                )
+							                            )
+							                        )
+							                    ));
+
+												unlink('./temp/' . $event['source']['groupId'] . '.txt');
 												break;
 										}
 									
@@ -1012,9 +1063,9 @@
 					                                			// Action inside of carousel 2
 							                                	'actions' => array(
 							                                		array(
-							                                			'type' => 'message',
+							                                			'type' => 'postback',
 							                                			'label' => 'Change Nickname',
-							                                			'text' => 'To be change callsign function'	
+							                                			'data' => 'changeNickname'	
 							                                		),
 							                                		array(
 							                                			'type' => 'postback',
@@ -1638,11 +1689,15 @@
 														$removed_command = explode(" ", $message['text'],2);
 														$new_name_array = explode(" ", $removed_command[1],-1);
 														$new_name = implode(" ", $new_name_array);
+														
+														if (fm_get_group_description($event['source']['groupId'], $db) == $new_name) {
+															$text_response = "Hmm ... your old and new name is kinda the same. Nothing to change" ;
+														} else {
+															$unique_id = fm_get_unique_id($event['source']['groupId'], $db);
+															fm_update_description($unique_id, $new_name, $db);
+															$text_response = "Group Nickname Successfully Changed";
+														}
 
-														$unique_id = fm_get_unique_id($event['source']['groupId'], $db);
-														fm_update_description($unique_id, $new_name, $db);
-
-														$text_response = "Group Nickname Successfully Changed";
 													}
 													
 												}
@@ -1866,6 +1921,19 @@
 	                            array(
 	                                'type' => 'text',
 	                                'text' => 'Please enter the new pass now'
+	                            )
+	                        )
+	                	));
+						break;
+
+					case 'changeNickname':
+						file_put_contents('./temp/' . $event['source']['groupId'] . '.txt', '..chgname' . PHP_EOL , LOCK_EX);
+        				$client->replyMessage(array(
+	                        'replyToken' => $event['replyToken'],
+	                        'messages' => array(
+	                            array(
+	                                'type' => 'text',
+	                                'text' => 'Please enter the new nickname now'
 	                            )
 	                        )
 	                	));
