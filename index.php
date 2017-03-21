@@ -870,6 +870,49 @@
 
 												unlink('./temp/' . $event['source']['groupId'] . '.txt');
 												break;
+
+											case '..wholink':
+												file_put_contents('./temp/' . $event['source']['groupId'] . '.txt', $exploded_Message[0] . PHP_EOL , FILE_APPEND | LOCK_EX);
+												$final_content = file('./temp/' . $event['source']['groupId'] . '.txt') ;
+												$execute_ping = trim( preg_replace( '/\s+/' , ' ', ( implode(" ", $final_content) ) ) ) ;
+												$client->pushMessage(array(
+							                        'to' => $event['source']['groupId'],
+							                        'messages' => array(
+
+							                        	// First Message
+							                            array(
+							                                'type' => 'template',
+
+							                                'altText' => 'Only applicable in LINE Mobile',
+
+							                                // The Confirm Content
+							                                'template' => array(
+
+							                                	'type' => "confirm",
+							                                	'text' => "This command find all the people linked to [" . $exploded_Message[0] . "]" . PHP_EOL .
+							                                				"Confirm ?" . PHP_EOL . PHP_EOL . "*PS : This may take awhile depending on how many they are",
+
+							                                	// Action to take between two
+							                                	'actions' => array(
+							                                		array(
+							                                			'type' => 'message',
+							                                			'label' => 'Yes',
+							                                			'text' => $execute_ping
+							                                		),
+							                                		array(
+							                                			'type' => 'postback',
+							                                			'label' => 'No',
+							                                			'data' => 'cancel',
+							                                			'text' => 'No'
+							                                		)
+							                                	)
+							                                )
+							                            )
+							                        )
+							                    ));
+
+												unlink('./temp/' . $event['source']['groupId'] . '.txt');
+												break;
 										}
 
 									} elseif (count($file_content) == 2) {
@@ -1206,9 +1249,9 @@
 					                                			// Action inside of carousel 5
 							                                	'actions' => array(
 							                                		array(
-							                                			'type' => 'message',
+							                                			'type' => 'postback',
 							                                			'label' => 'Who Link',
-							                                			'text' => 'To Be Who Link Command Function'	
+							                                			'data' => 'whoLinkPing'	
 							                                		),
 							                                		array(
 							                                			'type' => 'message',
@@ -2053,6 +2096,19 @@
 	                            array(
 	                                'type' => 'text',
 	                                'text' => 'Please enter your old group ping name now'
+	                            )
+	                        )
+	                	));
+						break;
+
+					case 'whoLinkPing':
+						file_put_contents('./temp/' . $event['source']['groupId'] . '.txt', '..wholink' . PHP_EOL , LOCK_EX);
+        				$client->replyMessage(array(
+	                        'replyToken' => $event['replyToken'],
+	                        'messages' => array(
+	                            array(
+	                                'type' => 'text',
+	                                'text' => 'Please enter the ping name you want to know'
 	                            )
 	                        )
 	                	));
