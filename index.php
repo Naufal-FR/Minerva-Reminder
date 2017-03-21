@@ -754,7 +754,18 @@
 												break;
 
 											case '..rename':
-												# code...
+												$old_name = $exploded_Message[0] ;
+												file_put_contents('./temp/' . $event['source']['groupId'] . '.txt', $old_name . PHP_EOL , FILE_APPEND | LOCK_EX);
+												
+												$client->pushMessage(array(
+							                        'to' => $event['source']['groupId'],
+							                        'messages' => array(
+							                            array(
+							                                'type' => 'text',
+							                                'text' => "Please enter the new ping name now (you cannot have a space in it)"
+							                            )
+							                        )
+							                    ));
 												break;
 
 											case '..chgpass':
@@ -859,7 +870,6 @@
 
 												unlink('./temp/' . $event['source']['groupId'] . '.txt');
 												break;
-
 										}
 
 									} elseif (count($file_content) == 2) {
@@ -957,7 +967,18 @@
 												break;
 
 											case '..rename':
-												# code...
+												$new_name = $exploded_Message[0] ;
+												file_put_contents('./temp/' . $event['source']['groupId'] . '.txt', $new_name . PHP_EOL , FILE_APPEND | LOCK_EX);
+												
+												$client->pushMessage(array(
+							                        'to' => $event['source']['groupId'],
+							                        'messages' => array(
+							                            array(
+							                                'type' => 'text',
+							                                'text' => "Please enter your group pass now"
+							                            )
+							                        )
+							                    ));
 												break;
 
 											case '..chgname':
@@ -1005,6 +1026,53 @@
 												break;
 										}
 									
+									} elseif (count($file_content) == 3) {
+										switch (trim($file_content[0])) {
+											case '..rename':
+												file_put_contents('./temp/' . $event['source']['groupId'] . '.txt', $exploded_Message[0] . PHP_EOL , FILE_APPEND | LOCK_EX);
+												$final_content = file('./temp/' . $event['source']['groupId'] . '.txt') ;
+												$execute_ping = trim( preg_replace( '/\s+/' , ' ', ( implode(" ", $final_content) ) ) ) ;
+												$client->pushMessage(array(
+							                        'to' => $event['source']['groupId'],
+							                        'messages' => array(
+
+							                        	// First Message
+							                            array(
+							                                'type' => 'template',
+
+							                                'altText' => 'Only applicable in LINE Mobile',
+
+							                                // The Confirm Content
+							                                'template' => array(
+
+							                                	'type' => "confirm",
+							                                	
+							                                	'text' => "You're going to change group ping name ;" . PHP_EOL . PHP_EOL . "Old Name : " . $final_content[1] . PHP_EOL .
+							                                				"New Name : " . $final_content[2] . PHP_EOL . 
+							                                				"Is it okay ?",
+
+							                                	// Action to take between two
+							                                	'actions' => array(
+							                                		array(
+							                                			'type' => 'message',
+							                                			'label' => 'Yes',
+							                                			'text' => $execute_ping
+							                                		),
+							                                		array(
+							                                			'type' => 'postback',
+							                                			'label' => 'No',
+							                                			'data' => 'cancel',
+							                                			'text' => 'No'
+							                                		)
+							                                	)
+							                                )
+							                            )
+							                        )
+							                    ));
+
+												unlink('./temp/' . $event['source']['groupId'] . '.txt');
+												break;											
+										}
 									}
 
 								}
@@ -1093,9 +1161,9 @@
 							                                			'data' => 'groupCreate'
 							                                		),
 							                                		array(
-							                                			'type' => 'message',
+							                                			'type' => 'postback',
 							                                			'label' => 'Rename Ping',
-							                                			'text' => 'To be rename ping function'	
+							                                			'data' => 'renamePing'	
 							                                		),
 							                                		array(
 							                                			'type' => 'postback',
@@ -1664,7 +1732,45 @@
 										break;
 									
 									case '..rename':
-										# code...
+										if (!isset($exploded_Message[1]) OR !isset($exploded_Message[2]) OR !isset($exploded_Message[3])) {
+											$text_response = 'Not enough information to rename ping.' . PHP_EOL . PHP_EOL . 'Need old ping name, new ping name and group pass' ;
+										} elseif (count($exploded_Message) == 4) {
+											$group_status = fm_check_unique_id($event['source']['groupId'], $db) ;
+											if ( $group_status == 0 ) {
+												$text_response = "Your group isn't registered yet" ;
+											} else {
+												$group_pass = fm_check_pass($exploded_Message[3], $event['source']['groupId'], $db);
+												if ($group_pass['IS_PASS_MATCH'] == 1) {
+													$unique_id = fm_get_unique_id($event['source']['groupId'], $db);
+													$check_old = fm_check_keyword($exploded_Message[1], $unique_id, $db);
+													if ($check_old == 1) {
+														$check_new = fm_check_keyword($exploded_Message[2], $unique_id, $db);
+														if ($check_new == 0) {
+															fm_update_keyword($unique_id, $exploded_Message[1], $exploded_Message[2], $db);
+															$text_response = "Ping Name Successfully Changed" ;
+														} elseif ($check_new == 1) {
+															$text_response = "A duplicate ping name on the new name detected. Please choose a different one" ;
+														}
+													} elseif($check_old == 0) {
+														$text_response = "Your group doesn't have ping with that name" ;
+													}
+												} elseif ($group_pass['IS_PASS_MATCH'] == 0) {
+													$text_response = 'You entered the wrong password. Please check again' ;
+												} 
+											}
+										} elseif (count($exploded_Message) > 3){
+											$text_response = "Sorry, you can only create keyword with the length of one word. You might want to use underscore instead for the space";
+										}
+			                    		mysqli_close($db);
+			                    		$client->replyMessage(array(
+						                        'replyToken' => $event['replyToken'],
+						                        'messages' => array(
+						                            array(
+						                                'type' => 'text',
+						                                'text' => $text_response
+						                            )
+						                        )
+						                ));							
 										break;
 
 									case '..chgname':
@@ -1934,6 +2040,19 @@
 	                            array(
 	                                'type' => 'text',
 	                                'text' => 'Please enter the new nickname now'
+	                            )
+	                        )
+	                	));
+						break;
+
+					case 'renamePing':
+						file_put_contents('./temp/' . $event['source']['groupId'] . '.txt', '..rename' . PHP_EOL , LOCK_EX);
+        				$client->replyMessage(array(
+	                        'replyToken' => $event['replyToken'],
+	                        'messages' => array(
+	                            array(
+	                                'type' => 'text',
+	                                'text' => 'Please enter your old group ping name now'
 	                            )
 	                        )
 	                	));
