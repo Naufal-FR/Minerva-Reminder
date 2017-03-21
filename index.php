@@ -31,7 +31,9 @@
 	               		$exploded_Message = explode(" ", $message['text']);
 						
 						try {
-							usleep(1000000);
+							// usleep(1000000);
+
+							usleep(250000);
 
 							////////////////////////////////////	
 							// Only Works On Personal Account//
@@ -739,7 +741,46 @@
 												break;
 
 											case '..revoke':
-												# code...
+												file_put_contents('./temp/' . $event['source']['groupId'] . '.txt', $exploded_Message[0] . PHP_EOL , FILE_APPEND | LOCK_EX);
+												$final_content = file('./temp/' . $event['source']['groupId'] . '.txt') ;
+												$execute_ping = trim( preg_replace( '/\s+/' , ' ', ( implode(" ", $final_content) ) ) ) ;
+												$client->pushMessage(array(
+							                        'to' => $event['source']['groupId'],
+							                        'messages' => array(
+
+							                        	// First Message
+							                            array(
+							                                'type' => 'template',
+
+							                                'altText' => 'Only applicable in LINE Mobile',
+
+							                                // The Confirm Content
+							                                'template' => array(
+
+							                                	'type' => "confirm",
+							                                	'text' => "[WARNING]" . PHP_EOL . "This command will delete all data about your group!" . PHP_EOL .
+							                                				"Are you sure about this ?",
+
+							                                	// Action to take between two
+							                                	'actions' => array(
+							                                		array(
+							                                			'type' => 'message',
+							                                			'label' => 'Yes',
+							                                			'text' => $execute_ping
+							                                		),
+							                                		array(
+							                                			'type' => 'postback',
+							                                			'label' => 'No',
+							                                			'data' => 'cancel',
+							                                			'text' => 'No'
+							                                		)
+							                                	)
+							                                )
+							                            )
+							                        )
+							                    ));
+
+												unlink('./temp/' . $event['source']['groupId'] . '.txt');
 												break;
 
 										}
@@ -853,9 +894,9 @@
 					                                			// Action inside of carousel 4
 							                                	'actions' => array(
 							                                		array(
-							                                			'type' => 'message',
+							                                			'type' => 'postback',
 							                                			'label' => 'Revoke',
-							                                			'text' => 'To be revoke command function'
+							                                			'data' => 'groupRevoke'
 							                                		),
 							                                		array(
 							                                			'type' => 'message',
@@ -1502,6 +1543,19 @@
 	                            array(
 	                                'type' => 'text',
 	                                'text' => 'Please enter the ping name now'
+	                            )
+	                        )
+	                	));
+						break;
+
+					case 'groupRevoke':
+						file_put_contents('./temp/' . $event['source']['groupId'] . '.txt', '..revoke' . PHP_EOL , LOCK_EX);
+        				$client->replyMessage(array(
+	                        'replyToken' => $event['replyToken'],
+	                        'messages' => array(
+	                            array(
+	                                'type' => 'text',
+	                                'text' => 'Please enter group pass now'
 	                            )
 	                        )
 	                	));
