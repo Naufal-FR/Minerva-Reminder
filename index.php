@@ -724,11 +724,33 @@
 												break;
 
 											case '..create':
-												# code...
+												$new_ping = $exploded_Message[0] ;
+												file_put_contents('./temp/' . $event['source']['groupId'] . '.txt', $new_ping . PHP_EOL , FILE_APPEND | LOCK_EX);
+												
+												$client->pushMessage(array(
+							                        'to' => $event['source']['groupId'],
+							                        'messages' => array(
+							                            array(
+							                                'type' => 'text',
+							                                'text' => "Please enter your group pass now"
+							                            )
+							                        )
+							                    ));
 												break;
 
 											case '..delete':
-												# code...
+												$delete_ping = $exploded_Message[0] ;
+												file_put_contents('./temp/' . $event['source']['groupId'] . '.txt', $delete_ping . PHP_EOL , FILE_APPEND | LOCK_EX);
+												
+												$client->pushMessage(array(
+							                        'to' => $event['source']['groupId'],
+							                        'messages' => array(
+							                            array(
+							                                'type' => 'text',
+							                                'text' => "Please enter your group pass now"
+							                            )
+							                        )
+							                    ));
 												break;
 
 											case '..rename':
@@ -789,7 +811,112 @@
 										}
 
 									} elseif (count($file_content) == 2) {
+
+										switch (trim($file_content[0])) {
+											case '..create':
+												file_put_contents('./temp/' . $event['source']['groupId'] . '.txt', $exploded_Message[0] . PHP_EOL , FILE_APPEND | LOCK_EX);
+												$final_content = file('./temp/' . $event['source']['groupId'] . '.txt') ;
+												$execute_ping = trim( preg_replace( '/\s+/' , ' ', ( implode(" ", $final_content) ) ) ) ;
+												$client->pushMessage(array(
+							                        'to' => $event['source']['groupId'],
+							                        'messages' => array(
+
+							                        	// First Message
+							                            array(
+							                                'type' => 'template',
+
+							                                'altText' => 'Only applicable in LINE Mobile',
+
+							                                // The Confirm Content
+							                                'template' => array(
+
+							                                	'type' => "confirm",
+							                                	
+							                                	'text' => "You're going to create a new ping called ;" . PHP_EOL . PHP_EOL .
+							                                				"Ping Name : " . $final_content[1] . PHP_EOL . 
+							                                				"Is this correct ?",
+
+							                                	// Action to take between two
+							                                	'actions' => array(
+							                                		array(
+							                                			'type' => 'message',
+							                                			'label' => 'Yes',
+							                                			'text' => $execute_ping
+							                                		),
+							                                		array(
+							                                			'type' => 'postback',
+							                                			'label' => 'No',
+							                                			'data' => 'cancel',
+							                                			'text' => 'No'
+							                                		)
+							                                	)
+							                                )
+							                            )
+							                        )
+							                    ));
+
+												unlink('./temp/' . $event['source']['groupId'] . '.txt');
+												break;
 										
+											case '..delete':
+												file_put_contents('./temp/' . $event['source']['groupId'] . '.txt', $exploded_Message[0] . PHP_EOL , FILE_APPEND | LOCK_EX);
+												$final_content = file('./temp/' . $event['source']['groupId'] . '.txt') ;
+												$execute_ping = trim( preg_replace( '/\s+/' , ' ', ( implode(" ", $final_content) ) ) ) ;
+												$client->pushMessage(array(
+							                        'to' => $event['source']['groupId'],
+							                        'messages' => array(
+
+							                        	// First Message
+							                            array(
+							                                'type' => 'template',
+
+							                                'altText' => 'Only applicable in LINE Mobile',
+
+							                                // The Confirm Content
+							                                'template' => array(
+
+							                                	'type' => "confirm",
+							                                	
+							                                	'text' => "You're going to delete a ping called ;" . PHP_EOL . PHP_EOL .
+							                                				"Ping Name : " . $final_content[1] . PHP_EOL . 
+							                                				"Is this okay ?",
+
+							                                	// Action to take between two
+							                                	'actions' => array(
+							                                		array(
+							                                			'type' => 'message',
+							                                			'label' => 'Yes',
+							                                			'text' => $execute_ping
+							                                		),
+							                                		array(
+							                                			'type' => 'postback',
+							                                			'label' => 'No',
+							                                			'data' => 'cancel',
+							                                			'text' => 'No'
+							                                		)
+							                                	)
+							                                )
+							                            )
+							                        )
+							                    ));
+
+												unlink('./temp/' . $event['source']['groupId'] . '.txt');
+												
+												break;
+
+											case '..rename':
+												# code...
+												break;
+
+											case '..chgpass':
+												# code...
+												break;
+
+											case '..chgname':
+												# code...
+												break;
+										}
+									
 									}
 
 								}
@@ -873,9 +1000,9 @@
 					                                			// Action inside of carousel 3
 							                                	'actions' => array(
 							                                		array(
-							                                			'type' => 'message',
+							                                			'type' => 'postback',
 							                                			'label' => 'Create Ping',
-							                                			'text' => 'To be create ping function'
+							                                			'data' => 'groupCreate'
 							                                		),
 							                                		array(
 							                                			'type' => 'message',
@@ -883,9 +1010,9 @@
 							                                			'text' => 'To be rename ping function'	
 							                                		),
 							                                		array(
-							                                			'type' => 'message',
+							                                			'type' => 'postback',
 							                                			'label' => 'Delete Ping',
-							                                			'text' => 'To be delete ping function'	
+							                                			'data' => 'groupDelete'	
 							                                		)
 							                                	)
 					                                		),
@@ -1560,6 +1687,32 @@
 	                            array(
 	                                'type' => 'text',
 	                                'text' => 'Please enter group pass now'
+	                            )
+	                        )
+	                	));
+						break;
+
+					case 'groupCreate':
+						file_put_contents('./temp/' . $event['source']['groupId'] . '.txt', '..create' . PHP_EOL , LOCK_EX);
+        				$client->replyMessage(array(
+	                        'replyToken' => $event['replyToken'],
+	                        'messages' => array(
+	                            array(
+	                                'type' => 'text',
+	                                'text' => 'Please enter the new ping name now'
+	                            )
+	                        )
+	                	));
+						break;
+
+					case 'groupDelete':
+						file_put_contents('./temp/' . $event['source']['groupId'] . '.txt', '..delete' . PHP_EOL , LOCK_EX);
+        				$client->replyMessage(array(
+	                        'replyToken' => $event['replyToken'],
+	                        'messages' => array(
+	                            array(
+	                                'type' => 'text',
+	                                'text' => 'Please enter the ping name you want to delete'
 	                            )
 	                        )
 	                	));
