@@ -359,10 +359,10 @@
 										$group_id = $exploded_Message[0] ;
 										file_put_contents('./temp/' . $event['source']['userId'] . '.txt', $group_id . PHP_EOL , FILE_APPEND | LOCK_EX);
 
-										if (trim($file_content[0]) == "..link") {
-											$detail = "link" ;
-										} elseif (trim($file_content[0]) == "..unlink") {
-											$detail = "unlink" ;
+										if (trim($file_content[0]) == "..subs") {
+											$detail = "subs" ;
+										} elseif (trim($file_content[0]) == "..unsubs") {
+											$detail = "unsubs" ;
 										} 
 										
 										$client->pushMessage(array(
@@ -370,21 +370,22 @@
 					                        'messages' => array(
 					                            array(
 					                                'type' => 'text',
-					                                'text' => "Please enter the ping name you want to " . $detail . " now"
+					                                'text' => "Please enter the 'mention' name you want to " . $detail . " now"
 					                            )
 					                        )
 					                    ));
+
 									} elseif (count($file_content) == 2) {
-										$ping_name = $exploded_Message[0] ;
-										file_put_contents('./temp/' . $event['source']['userId'] . '.txt', $ping_name . PHP_EOL , FILE_APPEND | LOCK_EX);
+										$mention_name = $exploded_Message[0] ;
+										file_put_contents('./temp/' . $event['source']['userId'] . '.txt', $mention_name . PHP_EOL , FILE_APPEND | LOCK_EX);
 										
 										$final_content = file('./temp/' . $event['source']['userId'] . '.txt') ;
 										$execute_link = trim( preg_replace( '/\s+/' , ' ', ( implode(" ", $final_content) ) ) ) ;
 
-										if (trim($final_content[0]) == "..link") {
-											$execute_type = "link to" ;
-										} elseif (trim($final_content[0]) == "..unlink") {
-											$execute_type = "unlink from" ;
+										if (trim($final_content[0]) == "..subs") {
+											$execute_type = "subs to" ;
+										} elseif (trim($final_content[0]) == "..unsubs") {
+											$execute_type = "unsubs from" ;
 										} 
 
 										$client->pushMessage(array(
@@ -404,7 +405,7 @@
 					                                	
 					                                	'text' => "You're going to " . $execute_type .  ";" . PHP_EOL . PHP_EOL .
 					                                				"Group ID : " . $final_content[1] .  
-					                                				"Ping Name : " . $final_content[2] . PHP_EOL . 
+					                                				"Mention Name : " . $final_content[2] . PHP_EOL . 
 					                                				"Is this correct ?",
 
 					                                	// Action to take between two
@@ -457,17 +458,17 @@
 						                                		array(
 						                                			'type' => 'message',
 						                                			'label' => 'My Link',
-						                                			'text' => '..mylink'
+						                                			'text' => '..mysubs'
 						                                		),
 						                                		array(
 						                                			'type' => 'postback',
 						                                			'label' => 'Link',
-						                                			'data' => 'personalLink'				                                				
+						                                			'data' => 'personalSubs'				                                				
 						                                		),
 						                                		array(
 						                                			'type' => 'postback',
 						                                			'label' => 'Unlink',
-						                                			'data' => 'personalUnlink'	
+						                                			'data' => 'personalUnsubs'	
 						                                		),
 						                                		array(
 						                                			'type' => 'message',
@@ -481,7 +482,7 @@
 						                    ));
 											break;
 
-									case '..mylink' :
+									case '..mysubs' :
 										$showId_query = "SELECT GF.UNIQUE_ID, GF.KEYWORD, GI.GROUP_DESCRIPTION FROM GROUP_FUNCTION GF, LINKED_ACC LA, GROUP_INFORMATION GI ". 
 											"WHERE GF.GF_ID = LA.GF_ID AND GI.UNIQUE_ID = GF.UNIQUE_ID AND LA.PERSONAL_ID ='" . 
 											$event['source']['userId'] . "'" ;
@@ -491,7 +492,7 @@
 										if ( mysqli_num_rows($query_result) == 0 ) {
 											$text_response = "You Don't Have Any Linked Ping" ;
 										} else {
-											$text_response = "Linked Ping" . PHP_EOL . PHP_EOL ;
+											$text_response = "Subscription List" . PHP_EOL . PHP_EOL ;
 
 											$query_fetch = mysqli_fetch_array($query_result) ;
 											$current_id = $query_fetch['UNIQUE_ID'];
@@ -520,16 +521,16 @@
 						                            ),
 						                            array(
 						                                'type' => 'text',
-						                                'text' => "Here's all your personal link~"
+						                                'text' => "Here's all your personal subscription~"
 						                            )
 						                        )
 						                ));
 										break;
 
-									case '..link' :
+									case '..subs' :
 										// 1 = Group Unique ID | 2 = Keyword
 										if (!isset($exploded_Message[1]) OR !isset($exploded_Message[2])) {
-											$text_response = 'Not enough information to link.' . PHP_EOL . 'Need keyword and group unique id' ;
+											$text_response = 'Not enough information to subscribe.' . PHP_EOL . PHP_EOL . 'Need group ID and subscription name' ;
 										
 										} else {
 											// Query to check if unique group id provided exist
@@ -549,7 +550,7 @@
 
 												// If there's no result even though group account registered
 												if (mysqli_num_rows($check_result) == 0) {
-													$text_response = "Your group doesn't have any ping yet" ;
+													$text_response = "That group doesn't have any subscription yet" ;
 												} else {
 													// Loop through all the that group keyword
 													while ($keyword_list = mysqli_fetch_array($check_result)) {
@@ -559,7 +560,7 @@
 													}
 
 													if (!isset($target_gf_id)) {
-														$text_response = "There's no keyword with that name" ;
+														$text_response = "There's no subscription with that name" ;
 													} else {
 														// Find GF_ID in Linked Acc to see if it's already linked
 														$check_gf_result = "SELECT `GF_ID` FROM `LINKED_ACC` WHERE PERSONAL_ID='" .
@@ -569,10 +570,10 @@
 														$gf_result_id = mysqli_fetch_array($gf_result);
 														// If there's already the value here, reject the link command
 														if ($target_gf_id == $gf_result_id['GF_ID']) {
-															$text_response = "Your account already linked to that group ping keyword" ;
+															$text_response = "You already subscribed to it" ;
 														} else {
 															fm_insert_linked_acc($target_gf_id, $event['source']['userId'], $db);
-															$text_response = "Successfully Linked" ;	
+															$text_response = "Successfully subscribed" ;	
 														}
 													}
 												}	
@@ -592,9 +593,9 @@
 						                ));
 										break;
 									
-									case '..unlink' :
+									case '..unsubs' :
 										if (!isset($exploded_Message[1]) OR !isset($exploded_Message[2])) {
-											$text_response = 'Not enough information to unlink.' . PHP_EOL . 'Need group unique id and keyword' ;
+											$text_response = 'Not enough information to unsubscribe.' . PHP_EOL . PHP_EOL . 'Need group ID and subscription name' ;
 										
 										} else {
 											$target_unique_id = $exploded_Message[1] ;
@@ -604,7 +605,7 @@
 											$get_result = mysqli_query($db, $get_query) ;
 											$counter = mysqli_num_rows($get_result);
 											if ($counter == 0) {
-												$text_response = "There's no group with that ID or with that specific keyword" ;
+												$text_response = "There's no group with that ID or that specific subscription" ;
 											} else {
 												$get_fetch = mysqli_fetch_array($get_result) ;
 												$check_delete = "SELECT COUNT(*) AS `IS_LINKED` FROM LINKED_ACC WHERE GF_ID ='" . 
@@ -614,11 +615,11 @@
 												$check_status = mysqli_fetch_array($check_result);
 
 												if ($check_status['IS_LINKED'] == 0) {
-													$text_response = "You're not linked with that ping yet" ;
+													$text_response = "You're not subscribed to it in the first place" ;
 												} elseif ($check_status['IS_LINKED'] == 1) {
 													$delete_query = "DELETE FROM LINKED_ACC WHERE GF_ID ='" . $get_fetch['GF_ID'] . "' AND PERSONAL_ID ='" . $event['source']['userId'] . "'" ;
 													$delete_result = mysqli_query($db, $delete_query);
-													$text_response = "Unlink Success" ;	
+													$text_response = "Unsubscribe success" ;	
 												}
 
 											}
@@ -853,7 +854,7 @@
 												unlink('./temp/' . $event['source']['groupId'] . '.txt');
 												break;
 
-											case '..wholink':
+											case '..whosubs':
 												file_put_contents('./temp/' . $event['source']['groupId'] . '.txt', $exploded_Message[0] . PHP_EOL , FILE_APPEND | LOCK_EX);
 												$final_content = file('./temp/' . $event['source']['groupId'] . '.txt') ;
 												$execute_ping = trim( preg_replace( '/\s+/' , ' ', ( implode(" ", $final_content) ) ) ) ;
@@ -871,7 +872,7 @@
 							                                'template' => array(
 
 							                                	'type' => "confirm",
-							                                	'text' => "This command find all the people linked to [" . $exploded_Message[0] . "]" . PHP_EOL .
+							                                	'text' => "This command will find all the people subbed to [" . $exploded_Message[0] . "]" . PHP_EOL .
 							                                				"Confirm ?" . PHP_EOL . PHP_EOL . "*PS : This may take awhile depending on how many they are",
 
 							                                	// Action to take between two
@@ -1233,7 +1234,7 @@
 							                                		array(
 							                                			'type' => 'postback',
 							                                			'label' => 'Who Link',
-							                                			'data' => 'whoLinkPing'	
+							                                			'data' => 'whoSubsTo'	
 							                                		),
 							                                		array(
 							                                			'type' => 'message',
@@ -1604,7 +1605,7 @@
 										}
 										break;
 
-									case '..wholink' :
+									case '..whosubs' :
 										if (!isset($exploded_Message[1])) {
 											$text_response = 'Not enough information to know who is linked.' . PHP_EOL . 'Need keyword' ;
 										} else {
@@ -1915,27 +1916,27 @@
         	case 'postback':
         		switch ($event['postback']['data']) {
         			// For Personal User
-        			case 'personalLink':
-        				file_put_contents('./temp/' . $event['source']['userId'] . '.txt', '..link' . PHP_EOL , LOCK_EX);
+        			case 'personalSubs':
+        				file_put_contents('./temp/' . $event['source']['userId'] . '.txt', '..subs' . PHP_EOL , LOCK_EX);
         				$client->replyMessage(array(
 	                        'replyToken' => $event['replyToken'],
 	                        'messages' => array(
 	                            array(
 	                                'type' => 'text',
-	                                'text' => 'Please enter your group ID now'
+	                                'text' => 'Please enter the group ID now'
 	                            )
 	                        )
 	                	));
         				break;
 
-    				case 'personalUnlink':
-					  	file_put_contents('./temp/' . $event['source']['userId'] . '.txt', '..unlink' . PHP_EOL , LOCK_EX);
+    				case 'personalUnsubs':
+					  	file_put_contents('./temp/' . $event['source']['userId'] . '.txt', '..unsubs' . PHP_EOL , LOCK_EX);
         				$client->replyMessage(array(
 	                        'replyToken' => $event['replyToken'],
 	                        'messages' => array(
 	                            array(
 	                                'type' => 'text',
-	                                'text' => 'Please enter your group ID now'
+	                                'text' => 'Please enter the group ID now'
 	                            )
 	                        )
 	                	));
@@ -2033,8 +2034,8 @@
 	                	));
 						break;
 
-					case 'whoLinkPing':
-						file_put_contents('./temp/' . $event['source']['groupId'] . '.txt', '..wholink' . PHP_EOL , LOCK_EX);
+					case 'whoSubsTo':
+						file_put_contents('./temp/' . $event['source']['groupId'] . '.txt', '..whosubs' . PHP_EOL , LOCK_EX);
         				$client->replyMessage(array(
 	                        'replyToken' => $event['replyToken'],
 	                        'messages' => array(
