@@ -370,7 +370,7 @@
 					                        'messages' => array(
 					                            array(
 					                                'type' => 'text',
-					                                'text' => "Please enter the 'mention' name you want to " . $detail . " now"
+					                                'text' => "Please enter the subcription name you want to " . $detail . " now"
 					                            )
 					                        )
 					                    ));
