@@ -370,7 +370,7 @@
 					                        'messages' => array(
 					                            array(
 					                                'type' => 'text',
-					                                'text' => "Please enter the subcription name you want to " . $detail . " now"
+					                                'text' => "Please enter the subscription name you want to " . $detail . " now"
 					                            )
 					                        )
 					                    ));
@@ -405,7 +405,7 @@
 					                                	
 					                                	'text' => "You're going to " . $execute_type .  ";" . PHP_EOL . PHP_EOL .
 					                                				"Group ID : " . $final_content[1] .  
-					                                				"Mention Name : " . $final_content[2] . PHP_EOL . 
+					                                				"Subscription Name :" . PHP_EOL . $final_content[2] . PHP_EOL . 
 					                                				"Is this correct ?",
 
 					                                	// Action to take between two
@@ -457,17 +457,17 @@
 						                                	'actions' => array(
 						                                		array(
 						                                			'type' => 'message',
-						                                			'label' => 'My Link',
+						                                			'label' => 'My Subscription',
 						                                			'text' => '..mysubs'
 						                                		),
 						                                		array(
 						                                			'type' => 'postback',
-						                                			'label' => 'Link',
+						                                			'label' => 'Subscribe to',
 						                                			'data' => 'personalSubs'				                                				
 						                                		),
 						                                		array(
 						                                			'type' => 'postback',
-						                                			'label' => 'Unlink',
+						                                			'label' => 'Unsubscribe',
 						                                			'data' => 'personalUnsubs'	
 						                                		),
 						                                		array(
@@ -490,7 +490,7 @@
 										$query_result = mysqli_query($db, $showId_query);
 
 										if ( mysqli_num_rows($query_result) == 0 ) {
-											$text_response = "You Don't Have Any Linked Ping" ;
+											$text_response = "You Don't Have Any Subscription" ;
 										} else {
 											$text_response = "Subscription List" . PHP_EOL . PHP_EOL ;
 
@@ -679,9 +679,8 @@
 
 							                                	'type' => "confirm",
 							                                	
-							                                	'text' => "You're going to ping ;" . PHP_EOL . PHP_EOL .
-							                                				"Ping Name : " . $final_content[1] . PHP_EOL . 
-							                                				"Is this correct ?",
+							                                	'text' => "You're going to mention [" . $final_content[1] . "]" . PHP_EOL . 
+							                                				"Proceed ?",
 
 							                                	// Action to take between two
 							                                	'actions' => array(
@@ -745,7 +744,7 @@
 							                        'messages' => array(
 							                            array(
 							                                'type' => 'text',
-							                                'text' => "Please enter the new ping name now (you cannot have a space in it)"
+							                                'text' => "Please enter the new mention name now (you cannot have a space in it)"
 							                            )
 							                        )
 							                    ));
@@ -920,8 +919,8 @@
 
 							                                	'type' => "confirm",
 							                                	
-							                                	'text' => "You're going to create a new ping called ;" . PHP_EOL . PHP_EOL .
-							                                				"Ping Name : " . $final_content[1] . PHP_EOL . 
+							                                	'text' => "You're going to create a new mention called ;" . PHP_EOL . PHP_EOL .
+							                                				"New Mention : " . $final_content[1] . PHP_EOL . 
 							                                				"Is this correct ?",
 
 							                                	// Action to take between two
@@ -965,8 +964,8 @@
 
 							                                	'type' => "confirm",
 							                                	
-							                                	'text' => "You're going to delete a ping called ;" . PHP_EOL . PHP_EOL .
-							                                				"Ping Name : " . $final_content[1] . PHP_EOL . 
+							                                	'text' => "You're going to delete a mention called ;" . PHP_EOL . PHP_EOL .
+							                                				"Mention Name : " . $final_content[1] . PHP_EOL . 
 							                                				"Is this okay ?",
 
 							                                	// Action to take between two
@@ -1026,7 +1025,8 @@
 
 							                                	'type' => "confirm",
 							                                	
-							                                	'text' => "You're going to change group nickname into ;" . PHP_EOL . PHP_EOL . "New Name : " . $final_content[1] . PHP_EOL . 
+							                                	'text' => "You're going to change group nickname into ;" . PHP_EOL . PHP_EOL . 
+							                                				"New Name : " . $final_content[1] . PHP_EOL . 
 							                                				"Is it okay ?",
 
 							                                	// Action to take between two
@@ -1073,7 +1073,8 @@
 
 							                                	'type' => "confirm",
 							                                	
-							                                	'text' => "You're going to change group ping name ;" . PHP_EOL . PHP_EOL . "Old Name : " . $final_content[1] . PHP_EOL .
+							                                	'text' => "You're going to change mention name ;" . PHP_EOL . PHP_EOL . 
+							                                				"Old Name : " . $final_content[1] . PHP_EOL .
 							                                				"New Name : " . $final_content[2] . PHP_EOL . 
 							                                				"Is it okay ?",
 
@@ -1104,344 +1105,102 @@
 								}
 									
 								// Core Function
-								switch ($exploded_Message[0]) {		
-									case 'menu':
-					                    $client->replyMessage(array(
-					                        'replyToken' => $event['replyToken'],
-					                        'messages' => array(
 
-					                        	// First Message
-					                            array(
-					                                'type' => 'template',
+								// @ Function, A Mirror Of Ping 
+								if (substr($exploded_Message[0], 0, 1) == '@') {
+									$removed_at = substr($exploded_Message[0], 1);
 
-					                                'altText' => "If you use LINE in PC, type '..help' command to view this version menu",
+									if (isset($exploded_Message[1])) {
+										$extra_message = explode(" ", $message['text'], 2);
+										$exploded_Message = array('@', $removed_at, $extra_message[1]);
+									} else {
+										$exploded_Message = array('@', $removed_at);
+									}
 
-					                                // Carousel Header
-					                                'template' => array(
+									$register_status = fm_check_group_information($event['source']['groupId'], $db);
 
-					                                	'type' => "carousel",
+									if ($register_status['IS_REGISTERED'] == 1) {
+										$group_unique_id = (int) fm_get_unique_id($event['source']['groupId'], $db) ;
+										$keyword_status = fm_check_keyword_available($group_unique_id, $db); 
 
-					                                	// Carousel Object
-					                                	'columns' => array(
-					                                		
-					                                		// Carousel First Object
-					                                		array(
-					                                			'title' => "Group Menu (1 of 5)",
-					                                			'text' => 'Most common command you might want to use',
+										if ($keyword_status > 0) {
+											$target_gf_id = fm_get_gf_id_secure($exploded_Message[1], $group_unique_id, $db);
 
-					                                			// Action inside of carousel 1
-							                                	'actions' => array(
-							                                		array(
-							                                			'type' => 'postback',
-							                                			'label' => 'Ping!',
-							                                			'data' => 'groupPing'
-							                                		),
-							                                		array(
-							                                			'type' => 'message',
-							                                			'label' => 'Ping List',
-							                                			'text' => '..list'	
-							                                		),
-							                                		array(
-							                                			'type' => 'message',
-							                                			'label' => 'Group Info',
-							                                			'text' => '..info'	
-							                                		)
-							                                	)
-					                                		),
-					                                		
-					                                		// Carousel Second Object
-					                                		array(
-					                                			'title' => "Group Menu (2 of 5)",
-					                                			'text' => 'Command used for Group Management',
-
-					                                			// Action inside of carousel 2
-							                                	'actions' => array(
-							                                		array(
-							                                			'type' => 'postback',
-							                                			'label' => 'Change Nickname',
-							                                			'data' => 'changeNickname'	
-							                                		),
-							                                		array(
-							                                			'type' => 'postback',
-							                                			'label' => 'Change Pass',
-							                                			'data' => 'changePass'	
-							                                		),
-							                                		array(
-							                                			'type' => 'message',
-							                                			'label' => 'Delete Group',
-							                                			'text' => 'groupRevoke'	
-							                                		)
-							                                	)
-					                                		),
-
-					                                		// Carousel Third Object
-					                                		array(
-					                                			'title' => "Group Menu (3 of 5)",
-					                                			'text' => 'Command used for Ping Management',
-
-					                                			// Action inside of carousel 3
-							                                	'actions' => array(
-							                                		array(
-							                                			'type' => 'postback',
-							                                			'label' => 'Create Ping',
-							                                			'data' => 'groupCreate'
-							                                		),
-							                                		array(
-							                                			'type' => 'postback',
-							                                			'label' => 'Rename Ping',
-							                                			'data' => 'renamePing'	
-							                                		),
-							                                		array(
-							                                			'type' => 'postback',
-							                                			'label' => 'Delete Ping',
-							                                			'data' => 'groupDelete'	
-							                                		)
-							                                	)
-					                                		),
-
-					                                		// Carousel Fourth Object
-					                                		array(
-					                                			'title' => "Group Menu (4 of 5)",
-					                                			'text' => "Command used for Bot Feedback & Help",
-
-					                                			// Action inside of carousel 4
-							                                	'actions' => array(
-							                                		array(
-							                                			'type' => 'message',
-							                                			'label' => 'Help',
-							                                			'text' => '..help'	
-							                                		),
-							                                		array(
-							                                			'type' => 'message',
-							                                			'label' => 'About Me',
-							                                			'text' => 'Information about me'	
-							                                		),
-							                                		array(
-							                                			'type' => 'message',
-							                                			'label' => 'Feedback Me',
-							                                			'text' => 'You can feedback me from one of the following way :'	
-							                                		)
-							                                	)
-					                                		),
-
-					                                		// Carousel Fifth Object
-					                                		array(
-					                                			'title' => "Group Menu (5 of 5)",
-					                                			'text' => "Miscellaneous Command for your group",
-
-					                                			// Action inside of carousel 5
-							                                	'actions' => array(
-							                                		array(
-							                                			'type' => 'postback',
-							                                			'label' => 'Who Link',
-							                                			'data' => 'whoSubsTo'	
-							                                		),
-							                                		array(
-							                                			'type' => 'message',
-							                                			'label' => 'Random Facts',
-							                                			'text' => 'To Be Random Facts Function'	
-							                                		),
-							                                		array(
-							                                			'type' => 'postback',
-							                                			'label' => '~Reserved~',
-							                                			'data' => "reserved"	
-							                                		)
-							                                	)
-					                                		)
-
-					                                	)
-					                                )
-					                            )
-					                        )
-					                    ));
-										break;
-
-									case '..request':
-										$search_id_res = (int) fm_get_unique_id( $event['source']['groupId'], $db) ;
-
-										if ($search_id_res != 0) {
-											$client->replyMessage(array(
-						                        'replyToken' => $event['replyToken'],
-						                        'messages' => array(
-						                            array(
-						                                'type' => 'text',
-						                                'text' => 'Your group is already registered ... '
-						                            )
-						                        )
-						                	));
-
-										} elseif (!isset($exploded_Message[1]) OR !isset($exploded_Message[2])) {
-											$text_response = 'Not enough information to request.' . PHP_EOL . 'Need group callsign and group pass' ;
-
-											$client->replyMessage(array(
-						                        'replyToken' => $event['replyToken'],
-						                        'messages' => array(
-						                            array(
-						                                'type' => 'text',
-						                                'text' => $text_response
-						                            )
-						                        )
-						                	));
-										
-										} else {
-											$word_count = count($exploded_Message) ;
-											$group_pass = $exploded_Message[$word_count-1];
-											
-											unset($exploded_Message[$word_count-1]);
-											unset($exploded_Message[0]);
-											
-											$callsign = implode(" ", $exploded_Message);
-
-											$query = "INSERT INTO GROUP_INFORMATION (`GROUP_ID`, `PASS`, `GROUP_DESCRIPTION`) VALUES ('" .
-												$event['source']['groupId'] . "','" . $group_pass . "','" . $callsign . "')";
-											
-											mysqli_query($db, $query);
-
-											$registered_id = (int) fm_get_unique_id($event['source']['groupId'], $db) ;
-
-				                    		$client->replyMessage(array(
-							                        'replyToken' => $event['replyToken'],
-							                        'messages' => array(
-							                            array(
-							                                'type' => 'text',
-							                                'text' => 'Successfully registered'
-							                            ), 
-							                            array(
-							                                'type' => 'text',
-							                                'text' => 'Callsign : ' . $callsign . PHP_EOL . 
-							                                'Group ID : ' . $registered_id . PHP_EOL . 
-							                                'Group Pass : ' . $group_pass
-							                            ), 
-							                            array(
-							                                'type' => 'text',
-							                                'text' => 'You can access this again with ..showId'
-							                            ) 
-							                        )
-							                ));
-										}
-
-					                    mysqli_close($db);
-										break;
-
-									case '..info' :
-										$search_id_res = (int) fm_get_unique_id( $event['source']['groupId'], $db) ;
-			                    		
-			                    		if ( $search_id_res === 0 ) {
-			                    			$text_response = array(
-			                    				'type' => 'text',
-						                        'text' => 'Your group is not registered yet'
-						                    );
-
-				                    		$client->replyMessage(array(
-						                        'replyToken' => $event['replyToken'],
-						                        'messages' => array($text_response)
-							                ));
-
-			                    		} else {
-			                    			$group_callsign = "Nickname : " . fm_get_group_description($event['source']['groupId'], $db);
-		                    				$group_id = "ID : " . $search_id_res ;
-		                    				$group_pass = "Pass : " . fm_get_pass($event['source']['groupId'], $db);
-		                    				
-		                    				$format_text1 = $group_callsign . PHP_EOL . $group_id . PHP_EOL . $group_pass ;
-
-		                    				$client->replyMessage(array(
-						                        'replyToken' => $event['replyToken'],
-						                        'messages' => array(
-						                        	// First Message
-						                            array(
-						                                'type' => 'text',
-						                                'text' => $format_text1
-						                            ),
-
-						                            // Second Message
-						                            array(
-						                                'type' => 'text',
-						                                'text' => "Here's your group information ~"
-						                            ) 
-						                        )
-						                    ));
-			                    		}
-
-			                    		mysqli_close($db);
-										break;
-
-									case '..create' :
-										if (!isset($exploded_Message[1]) OR !isset($exploded_Message[2])) {
-											$text_response = 'Not enough information to create one.' . PHP_EOL . 'Need keyword and group pass' ;
-										} elseif (count($exploded_Message) == 3) {
-											$group_status = fm_check_unique_id($event['source']['groupId'], $db) ;
-											if ( $group_status == 0 ) {
-												$text_response = "Your group isn't registered yet" ;
+											if ($target_gf_id == 0) {
+												$text_response = "Umm ... no mention with that name in this group" ;
 											} else {
-												$group_pass = fm_check_pass($exploded_Message[2], $event['source']['groupId'], $db);
-												if ($group_pass['IS_PASS_MATCH'] == 1) {
-													$unique_id = fm_get_unique_id($event['source']['groupId'], $db);
-													$check_result = fm_check_keyword($exploded_Message[1], $unique_id, $db);
-													if ($check_result == 0) {
-														fm_insert_group_function($exploded_Message[1], $unique_id, $db);
-														$text_response = "New Ping Created" ;
-													} elseif($check_result == 1) {
-														$text_response = "Duplicate keyword detected" ;
+
+												$personal_id_list = fm_get_personal_id($target_gf_id, $db);
+
+												if ($personal_id_list === 0) {
+													$text_response = "Sorry, looks like nobody subbed to that mention yet" ;
+												} else {
+													$target_name = fm_get_group_description($event['source']['groupId'], $db) ;
+													$number_of_ping = 0 ;
+
+													if (isset($extra_message[1])) {
+														$messages_to_send = $extra_message[1] ;
+													} else {
+														$messages_to_send = "- - Nothing Included - - " ;
 													}
-												} elseif ($group_pass['IS_PASS_MATCH'] == 0) {
-													$text_response = 'You entered the wrong password' ;
-												} 
-											}
-										} elseif (count($exploded_Message) > 3){
-											$text_response = "Sorry, you can only create keyword with the length of one word. You might want to use underscore instead for the space";
-										}
-			                    		mysqli_close($db);
-			                    		$client->replyMessage(array(
-						                        'replyToken' => $event['replyToken'],
-						                        'messages' => array(
-						                            array(
-						                                'type' => 'text',
-						                                'text' => $text_response
-						                            )
-						                        )
-						                ));		
-										break;
 
-									case '..delete':
-										if (!isset($exploded_Message[1]) OR !isset($exploded_Message[2])) {
-											$text_response = 'Not enough information to delete ping.' . PHP_EOL . 'Need keyword and group pass' ;
-										} else {											
-											$target_keyword = $exploded_Message[1] ;
-											$target_pass = $exploded_Message[2] ;
+													while ($id_to_ping = mysqli_fetch_array($personal_id_list)) {
+									                    $client->pushMessage(array(
+									                        'to' => $id_to_ping['PERSONAL_ID'],
+									                        'messages' => array(
+									                            array(
+									                                'type' => 'text',
+									                                'text' =>  "~NEW MESSAGE~" . PHP_EOL . PHP_EOL . 
+									                                "FROM : " . PHP_EOL . $target_name . PHP_EOL . 
+									                                "ID : " . $group_unique_id . PHP_EOL . 
+									                                "TO : " . $exploded_Message[1] . PHP_EOL . PHP_EOL .
+									                                "Message : " . PHP_EOL . $messages_to_send
+									                            ),
+									                            array(
+									                                'type' => 'text',
+									                                'text' => "You have a new mention~"
+									                            )
+									                        )
+									                    ));
+									                    $number_of_ping += 1 ;
+										            }
 
-											$check_status = fm_check_group_information($event['source']['groupId'], $db);
-
-											if ($check_status['IS_REGISTERED'] == 0) {
-												$text_response = "Your group is not registered yet" ;
-
-											} elseif ($check_status['IS_REGISTERED'] == 1) {
-												$fetch_pass = fm_check_pass($target_pass, $event['source']['groupId'], $db);
-
-												if ($fetch_pass['IS_PASS_MATCH'] == 0) {
-													$text_response = "You entered the wrong password. Please check again" ;
-												} elseif ($fetch_pass['IS_PASS_MATCH'] == 1) {
-
-													$group_unique_id = fm_get_unique_id($event['source']['groupId'], $db);
-													$check_function = fm_check_gf_id_secure($target_keyword, $group_unique_id, $db);
-
-													if ($check_function['IS_GF_CREATED'] == 0) {
-														$text_response = "There's no ping with that keyword" ;
-													} elseif ($check_function['IS_GF_CREATED'] == 1) {
-														$target_gf_id = fm_get_gf_id_secure($target_keyword, $group_unique_id, $db);
-														
-														fm_delete_info_via_gf_id($target_gf_id, "LINKED_ACC", $db);
-														fm_delete_info_via_gf_id($target_gf_id, "GROUP_FUNCTION", $db);
-														
-														$text_response = "Ping Successfully Deleted" ;	
+										            if (isset($extra_message[1])) {
+										            	$send_status = "Mention success to " . $number_of_ping . " subbed account with additional messages" ;
+													} else {
+														$send_status = "Mention success to " . $number_of_ping . " subbed account" ;
 													}
+
+										            $client->pushMessage(array(
+								                        'to' => $event['source']['groupId'],
+								                        'messages' => array(
+								                            array(
+								                                'type' => 'text',
+								                                'text' => $send_status
+								                            )
+								                        )
+								                    ));
+
+										            $send_success = 1 ;
+
 												}
-												
-											}
-										}
-										
-			                    		mysqli_close($db);
 
-			                    		$client->replyMessage(array(
+											}
+
+										} elseif ($keyword_status == 0) {
+											$text_response = "Your group doesn't have any mention yet" ;
+
+										}
+
+
+									} elseif ($register_status['IS_REGISTERED'] == 0) {
+										$text_response = "Your Group Is Not Registered Yet" ;
+									}	
+
+				                    mysqli_close($db);
+
+									if (isset($send_success)) {
+					                    $client->replyMessage(array(
 						                        'replyToken' => $event['replyToken'],
 						                        'messages' => array(
 						                            array(
@@ -1450,13 +1209,510 @@
 						                            )
 						                        )
 						                ));
-										break;
+									} else {
+					                    $client->replyMessage(array(
+						                        'replyToken' => $event['replyToken'],
+						                        'messages' => array(
+						                            array(
+						                                'type' => 'text',
+						                                'text' => "Something went wrong making us can't send the messages"
+						                            )
+						                        )
+						                ));
+									}
 
-									case '..list' :
-										$search_id_res = fm_get_unique_id($event['source']['groupId'], $db) ;
-										if ($search_id_res === 0) {
-											$text_response = "Your group is not registered yet" ;
-											$client->replyMessage(array(
+								// Standard Core Function
+								} else {
+									switch ($exploded_Message[0]) {		
+										case 'menu':
+						                    $client->replyMessage(array(
+						                        'replyToken' => $event['replyToken'],
+						                        'messages' => array(
+
+						                        	// First Message
+						                            array(
+						                                'type' => 'template',
+
+						                                'altText' => "If you use LINE in PC, type '..help' command to view this version menu",
+
+						                                // Carousel Header
+						                                'template' => array(
+
+						                                	'type' => "carousel",
+
+						                                	// Carousel Object
+						                                	'columns' => array(
+						                                		
+						                                		// Carousel First Object
+						                                		array(
+						                                			'title' => "Group Menu (1 of 5)",
+						                                			'text' => 'Most common command you might want to use',
+
+						                                			// Action inside of carousel 1
+								                                	'actions' => array(
+								                                		array(
+								                                			'type' => 'postback',
+								                                			'label' => 'Mention!',
+								                                			'data' => 'groupPing'
+								                                		),
+								                                		array(
+								                                			'type' => 'message',
+								                                			'label' => 'Mention List',
+								                                			'text' => '..list'	
+								                                		),
+								                                		array(
+								                                			'type' => 'message',
+								                                			'label' => 'Group Info',
+								                                			'text' => '..info'	
+								                                		)
+								                                	)
+						                                		),
+						                                		
+						                                		// Carousel Second Object
+						                                		array(
+						                                			'title' => "Group Menu (2 of 5)",
+						                                			'text' => 'Command used for Group Management',
+
+						                                			// Action inside of carousel 2
+								                                	'actions' => array(
+								                                		array(
+								                                			'type' => 'postback',
+								                                			'label' => 'Change Nickname',
+								                                			'data' => 'changeNickname'	
+								                                		),
+								                                		array(
+								                                			'type' => 'postback',
+								                                			'label' => 'Change Pass',
+								                                			'data' => 'changePass'	
+								                                		),
+								                                		array(
+								                                			'type' => 'message',
+								                                			'label' => 'Delete Group',
+								                                			'text' => 'groupRevoke'	
+								                                		)
+								                                	)
+						                                		),
+
+						                                		// Carousel Third Object
+						                                		array(
+						                                			'title' => "Group Menu (3 of 5)",
+						                                			'text' => 'Command used for Mention Management',
+
+						                                			// Action inside of carousel 3
+								                                	'actions' => array(
+								                                		array(
+								                                			'type' => 'postback',
+								                                			'label' => 'Create Mention',
+								                                			'data' => 'groupCreate'
+								                                		),
+								                                		array(
+								                                			'type' => 'postback',
+								                                			'label' => 'Rename Mention',
+								                                			'data' => 'renamePing'	
+								                                		),
+								                                		array(
+								                                			'type' => 'postback',
+								                                			'label' => 'Delete Mention',
+								                                			'data' => 'groupDelete'	
+								                                		)
+								                                	)
+						                                		),
+
+						                                		// Carousel Fourth Object
+						                                		array(
+						                                			'title' => "Group Menu (4 of 5)",
+						                                			'text' => "Command used for Bot Feedback & Help",
+
+						                                			// Action inside of carousel 4
+								                                	'actions' => array(
+								                                		array(
+								                                			'type' => 'message',
+								                                			'label' => 'Help',
+								                                			'text' => '..help'	
+								                                		),
+								                                		array(
+								                                			'type' => 'message',
+								                                			'label' => 'About Me',
+								                                			'text' => 'Information about me'	
+								                                		),
+								                                		array(
+								                                			'type' => 'message',
+								                                			'label' => 'Feedback Me',
+								                                			'text' => 'You can feedback me from one of the following way :'	
+								                                		)
+								                                	)
+						                                		),
+
+						                                		// Carousel Fifth Object
+						                                		array(
+						                                			'title' => "Group Menu (5 of 5)",
+						                                			'text' => "Miscellaneous Command for your group",
+
+						                                			// Action inside of carousel 5
+								                                	'actions' => array(
+								                                		array(
+								                                			'type' => 'postback',
+								                                			'label' => 'Who Subs',
+								                                			'data' => 'whoSubsTo'	
+								                                		),
+								                                		array(
+								                                			'type' => 'message',
+								                                			'label' => 'Random Facts',
+								                                			'text' => 'To Be Random Facts Function'	
+								                                		),
+								                                		array(
+								                                			'type' => 'postback',
+								                                			'label' => '~Reserved~',
+								                                			'data' => "reserved"	
+								                                		)
+								                                	)
+						                                		)
+
+						                                	)
+						                                )
+						                            )
+						                        )
+						                    ));
+											break;
+
+										case '..request':
+											$search_id_res = (int) fm_get_unique_id( $event['source']['groupId'], $db) ;
+
+											if ($search_id_res != 0) {
+												$client->replyMessage(array(
+							                        'replyToken' => $event['replyToken'],
+							                        'messages' => array(
+							                            array(
+							                                'type' => 'text',
+							                                'text' => 'Your group is already registered ... '
+							                            )
+							                        )
+							                	));
+
+											} elseif (!isset($exploded_Message[1]) OR !isset($exploded_Message[2])) {
+												$text_response = 'Not enough information to request.' . PHP_EOL . 'Need group callsign and group pass' ;
+
+												$client->replyMessage(array(
+							                        'replyToken' => $event['replyToken'],
+							                        'messages' => array(
+							                            array(
+							                                'type' => 'text',
+							                                'text' => $text_response
+							                            )
+							                        )
+							                	));
+											
+											} else {
+												$word_count = count($exploded_Message) ;
+												$group_pass = $exploded_Message[$word_count-1];
+												
+												unset($exploded_Message[$word_count-1]);
+												unset($exploded_Message[0]);
+												
+												$callsign = implode(" ", $exploded_Message);
+
+												$query = "INSERT INTO GROUP_INFORMATION (`GROUP_ID`, `PASS`, `GROUP_DESCRIPTION`) VALUES ('" .
+													$event['source']['groupId'] . "','" . $group_pass . "','" . $callsign . "')";
+												
+												mysqli_query($db, $query);
+
+												$registered_id = (int) fm_get_unique_id($event['source']['groupId'], $db) ;
+
+					                    		$client->replyMessage(array(
+								                        'replyToken' => $event['replyToken'],
+								                        'messages' => array(
+								                            array(
+								                                'type' => 'text',
+								                                'text' => 'Successfully registered'
+								                            ), 
+								                            array(
+								                                'type' => 'text',
+								                                'text' => 'Nickname : ' . $callsign . PHP_EOL . 
+								                                'Group ID : ' . $registered_id . PHP_EOL . 
+								                                'Group Pass : ' . $group_pass
+								                            ), 
+								                            array(
+								                                'type' => 'text',
+								                                'text' => 'You can access this again with ..showId'
+								                            ) 
+								                        )
+								                ));
+											}
+
+						                    mysqli_close($db);
+											break;
+
+										case '..info' :
+											$search_id_res = (int) fm_get_unique_id( $event['source']['groupId'], $db) ;
+				                    		
+				                    		if ( $search_id_res === 0 ) {
+				                    			$text_response = array(
+				                    				'type' => 'text',
+							                        'text' => 'Your group is not registered yet'
+							                    );
+
+					                    		$client->replyMessage(array(
+							                        'replyToken' => $event['replyToken'],
+							                        'messages' => array($text_response)
+								                ));
+
+				                    		} else {
+				                    			$group_callsign = "Nickname : " . fm_get_group_description($event['source']['groupId'], $db);
+			                    				$group_id = "ID : " . $search_id_res ;
+			                    				$group_pass = "Pass : " . fm_get_pass($event['source']['groupId'], $db);
+			                    				
+			                    				$format_text1 = $group_callsign . PHP_EOL . $group_id . PHP_EOL . $group_pass ;
+
+			                    				$client->replyMessage(array(
+							                        'replyToken' => $event['replyToken'],
+							                        'messages' => array(
+							                        	// First Message
+							                            array(
+							                                'type' => 'text',
+							                                'text' => $format_text1
+							                            ),
+
+							                            // Second Message
+							                            array(
+							                                'type' => 'text',
+							                                'text' => "Here's your group information~"
+							                            ) 
+							                        )
+							                    ));
+				                    		}
+
+				                    		mysqli_close($db);
+											break;
+
+										case '..create' :
+											if (!isset($exploded_Message[1]) OR !isset($exploded_Message[2])) {
+												$text_response = 'Not enough information to create one.' . PHP_EOL . 'Need mention name and group pass' ;
+											} elseif (count($exploded_Message) == 3) {
+												$group_status = fm_check_unique_id($event['source']['groupId'], $db) ;
+												if ( $group_status == 0 ) {
+													$text_response = "Your group isn't registered yet" ;
+												} else {
+													$group_pass = fm_check_pass($exploded_Message[2], $event['source']['groupId'], $db);
+													if ($group_pass['IS_PASS_MATCH'] == 1) {
+														$unique_id = fm_get_unique_id($event['source']['groupId'], $db);
+														$check_result = fm_check_keyword($exploded_Message[1], $unique_id, $db);
+														if ($check_result == 0) {
+															fm_insert_group_function($exploded_Message[1], $unique_id, $db);
+															$text_response = "New mention created" ;
+														} elseif($check_result == 1) {
+															$text_response = "Duplicate mention detected" ;
+														}
+													} elseif ($group_pass['IS_PASS_MATCH'] == 0) {
+														$text_response = 'You entered the wrong password' ;
+													} 
+												}
+											} elseif (count($exploded_Message) > 3){
+												$text_response = "Sorry, you can only create mention with the length of one word. You might want to use underscore instead for the space";
+											}
+				                    		mysqli_close($db);
+				                    		$client->replyMessage(array(
+							                        'replyToken' => $event['replyToken'],
+							                        'messages' => array(
+							                            array(
+							                                'type' => 'text',
+							                                'text' => $text_response
+							                            )
+							                        )
+							                ));		
+											break;
+
+										case '..delete':
+											if (!isset($exploded_Message[1]) OR !isset($exploded_Message[2])) {
+												$text_response = 'Not enough information to delete mention.' . PHP_EOL . 'Need mentio name and group pass' ;
+											} else {											
+												$target_keyword = $exploded_Message[1] ;
+												$target_pass = $exploded_Message[2] ;
+
+												$check_status = fm_check_group_information($event['source']['groupId'], $db);
+
+												if ($check_status['IS_REGISTERED'] == 0) {
+													$text_response = "Your group is not registered yet" ;
+
+												} elseif ($check_status['IS_REGISTERED'] == 1) {
+													$fetch_pass = fm_check_pass($target_pass, $event['source']['groupId'], $db);
+
+													if ($fetch_pass['IS_PASS_MATCH'] == 0) {
+														$text_response = "You entered the wrong password. Please check again" ;
+													} elseif ($fetch_pass['IS_PASS_MATCH'] == 1) {
+
+														$group_unique_id = fm_get_unique_id($event['source']['groupId'], $db);
+														$check_function = fm_check_gf_id_secure($target_keyword, $group_unique_id, $db);
+
+														if ($check_function['IS_GF_CREATED'] == 0) {
+															$text_response = "There's no mention with that name" ;
+														} elseif ($check_function['IS_GF_CREATED'] == 1) {
+															$target_gf_id = fm_get_gf_id_secure($target_keyword, $group_unique_id, $db);
+															
+															fm_delete_info_via_gf_id($target_gf_id, "LINKED_ACC", $db);
+															fm_delete_info_via_gf_id($target_gf_id, "GROUP_FUNCTION", $db);
+															
+															$text_response = "Mention Successfully Deleted" ;	
+														}
+													}
+													
+												}
+											}
+											
+				                    		mysqli_close($db);
+
+				                    		$client->replyMessage(array(
+							                        'replyToken' => $event['replyToken'],
+							                        'messages' => array(
+							                            array(
+							                                'type' => 'text',
+							                                'text' => $text_response
+							                            )
+							                        )
+							                ));
+											break;
+
+										case '..list' :
+											$search_id_res = fm_get_unique_id($event['source']['groupId'], $db) ;
+											if ($search_id_res === 0) {
+												$text_response = "Your group is not registered yet" ;
+												$client->replyMessage(array(
+									                        'replyToken' => $event['replyToken'],
+									                        'messages' => array(
+									                            array(
+									                                'type' => 'text',
+									                                'text' => $text_response
+									                            )
+									                        )
+									            ));
+											} else {
+												$available = fm_check_keyword_available($search_id_res, $db);
+												if ($available > 0){
+													$text_response = "Registered Mention" . PHP_EOL . PHP_EOL ;
+													$query_result = fm_get_keyword ($search_id_res, $db);
+													while ( $query_fetch = mysqli_fetch_array($query_result) ) {
+														$text_response .= "> " . $query_fetch['KEYWORD'] . PHP_EOL ;
+													}
+						                    		$client->replyMessage(array(
+									                        'replyToken' => $event['replyToken'],
+									                        'messages' => array(
+									                            array(
+									                                'type' => 'text',
+									                                'text' => $text_response
+									                            ),
+									                            array(
+									                                'type' => 'text',
+									                                'text' => "Here's the list of mention on this group~"
+									                            )
+									                        )
+									                ));
+												} elseif ($available == 0) {
+													$text_response = "Your group does not have any mention yet"; 
+
+													$client->replyMessage(array(
+									                        'replyToken' => $event['replyToken'],
+									                        'messages' => array(
+									                            array(
+									                                'type' => 'text',
+									                                'text' => $text_response
+									                            )
+									                        )
+									            	));
+												}
+											}
+				                    		mysqli_close($db);
+											break;
+
+										case '..ping':
+											if (!isset($exploded_Message[1])) {
+												$text_response = 'Not enough information to mention.' . PHP_EOL . 'Need mention name' ;
+											} else {
+												$register_status = fm_check_group_information($event['source']['groupId'], $db);
+
+												if ($register_status['IS_REGISTERED'] == 1) {
+													$group_unique_id = (int) fm_get_unique_id($event['source']['groupId'], $db) ;
+													$keyword_status = fm_check_keyword_available($group_unique_id, $db); 
+
+													if ($keyword_status > 0) {
+														$target_gf_id = fm_get_gf_id_secure($exploded_Message[1], $group_unique_id, $db);
+
+														if ($target_gf_id == 0) {
+															$text_response = "Umm ... no mention with that name in this group" ;
+														} else {
+
+															$personal_id_list = fm_get_personal_id($target_gf_id, $db);
+
+															if ($personal_id_list === 0) {
+																$text_response = "Sorry, looks like nobody subbed to that mention yet" ;
+															} else {
+																$target_name = fm_get_group_description($event['source']['groupId'], $db) ;
+																$number_of_ping = 0 ;
+
+																if (isset($exploded_Message[2])) {
+																	$additional_Message = explode(" ", $message['text'],3);
+																	$messages_to_send = $additional_Message[2] ;
+																} else {
+																	$messages_to_send = "- - Nothing Included - - " ;
+																}
+
+																while ($id_to_ping = mysqli_fetch_array($personal_id_list)) {
+												                    $client->pushMessage(array(
+												                        'to' => $id_to_ping['PERSONAL_ID'],
+												                        'messages' => array(
+												                            array(
+												                                'type' => 'text',
+												                                'text' =>  "~NEW MESSAGE~" . PHP_EOL . PHP_EOL . 
+												                                "FROM : " . PHP_EOL . "> " . $target_name . PHP_EOL . 
+												                                // "ID : " . $group_unique_id . PHP_EOL . 
+												                                "TO : " . $exploded_Message[1] . PHP_EOL . PHP_EOL .
+												                                "Message : " . PHP_EOL . $messages_to_send
+												                            ),
+												                            array(
+												                                'type' => 'text',
+												                                'text' => "You have a new mention~"
+												                            )
+												                        )
+												                    ));
+												                    $number_of_ping += 1 ;
+													            }
+
+													            if (isset($additional_Message)) {
+													            	$send_status = "Mention success to " . $number_of_ping . " subbed account with additional messages" ;
+																} else {
+																	$send_status = "Mention success to " . $number_of_ping . " subbed account" ;
+																}
+
+													            $client->pushMessage(array(
+											                        'to' => $event['source']['groupId'],
+											                        'messages' => array(
+											                            array(
+											                                'type' => 'text',
+											                                'text' => $send_status
+											                            )
+											                        )
+											                    ));
+
+													            $send_success = 1 ;
+
+															}
+
+														}
+
+													} elseif ($keyword_status == 0) {
+														$text_response = "Your group doesn't have any mention yet" ;
+
+													}
+
+
+												} elseif ($register_status['IS_REGISTERED'] == 0) {
+													$text_response = "Your Group Is Not Registered Yet" ;
+												}	
+
+											}
+
+						                    mysqli_close($db);
+
+											if (!isset($send_success)) {
+							                    $client->replyMessage(array(
 								                        'replyToken' => $event['replyToken'],
 								                        'messages' => array(
 								                            array(
@@ -1464,15 +1720,46 @@
 								                                'text' => $text_response
 								                            )
 								                        )
-								            ));
-										} else {
-											$available = fm_check_keyword_available($search_id_res, $db);
-											if ($available > 0){
-												$text_response = "Registered Keyword" . PHP_EOL . PHP_EOL ;
-												$query_result = fm_get_keyword ($search_id_res, $db);
-												while ( $query_fetch = mysqli_fetch_array($query_result) ) {
-													$text_response .= "> " . $query_fetch['KEYWORD'] . PHP_EOL ;
+								                ));
+											}
+											break;
+
+										case '..whosubs' :
+											if (!isset($exploded_Message[1])) {
+												$text_response = 'Not enough information to know who is subbed.' . PHP_EOL . 'Need mention name' ;
+											} else {
+												$check_group = fm_check_unique_id($event['source']['groupId'], $db);
+												if ( $check_group == 0 ) {
+													$text_response = "Your Group Isn't Registered Yet" ;
+												} else {
+													$unique_id = fm_get_unique_id($event['source']['groupId'], $db);
+													$target_keyword = $exploded_Message[1] ;
+													$search_result = fm_get_keyword_secure($target_keyword, $unique_id, $db);
+													if ( $search_result === 0) {
+														$text_response = "No mention with that name in this group";
+														$return_var = 1 ;
+													} else {
+														$fetch_gf_id = fm_get_gf_id_secure($search_result, $unique_id, $db) ;
+														$is_linked_exist = fm_check_linked_id($fetch_gf_id, $db);
+														if ($is_linked_exist == 0) {
+															$text_response = "Nobody subbed to this mention yet" ;
+															$return_var = 1 ;
+														} elseif ($is_linked_exist == 1) {
+															$personal_id_list = fm_get_personal_id($fetch_gf_id, $db);
+															$text_response = "People subbed to " . $target_keyword . PHP_EOL . PHP_EOL;
+															while ($profile_id_to_search = mysqli_fetch_array($personal_id_list)) {
+																$result = $client->getProfile($profile_id_to_search['PERSONAL_ID']);
+																$result = json_decode($result, true);
+																$text_response .= "> " . $result['displayName'] . PHP_EOL;
+															}
+															$return_var = 2 ;
+														}
+													}
 												}
+											}
+				                    		mysqli_close($db);
+
+				                    		if ($return_var == 2) {
 					                    		$client->replyMessage(array(
 								                        'replyToken' => $event['replyToken'],
 								                        'messages' => array(
@@ -1482,179 +1769,147 @@
 								                            ),
 								                            array(
 								                                'type' => 'text',
-								                                'text' => "Here's the list of keyword on this group~"
+								                                'text' => "Here's all the people subbed to that mention~"
 								                            )
 								                        )
 								                ));
-											} elseif ($available == 0) {
-												$text_response = "Your group does not have any ping yet"; 
-
-												$client->replyMessage(array(
+				                    		} elseif ($return_var == 1) {
+				                    			$client->replyMessage(array(
 								                        'replyToken' => $event['replyToken'],
 								                        'messages' => array(
 								                            array(
 								                                'type' => 'text',
-								                                'text' => $text_response
+								                                'text' => $text_response 
 								                            )
 								                        )
-								            	));
-											}
-										}
-			                    		mysqli_close($db);
-										break;
+								                ));
+				                    		}	
+											break;
 
-									case '..ping':
-										if (!isset($exploded_Message[1])) {
-											$text_response = 'Not enough information to ping.' . PHP_EOL . 'Need ping keyword' ;
-										} else {
-											$register_status = fm_check_group_information($event['source']['groupId'], $db);
+										case '..revoke':
+											if (!isset($exploded_Message[1])) {
+												$text_response = 'Not enough information to remove group.' . PHP_EOL . 'Need group pass' ;
+											} else {											
+												$inserted_pass = $exploded_Message[1] ;
+												$check_status = fm_check_group_information($event['source']['groupId'], $db);
 
-											if ($register_status['IS_REGISTERED'] == 1) {
-												$group_unique_id = (int) fm_get_unique_id($event['source']['groupId'], $db) ;
-												$keyword_status = fm_check_keyword_available($group_unique_id, $db); 
+												if ($check_status['IS_REGISTERED'] == 0) {
+													$text_response = "Your group is not registered yet" ;
 
-												if ($keyword_status > 0) {
-													$target_gf_id = fm_get_gf_id_secure($exploded_Message[1], $group_unique_id, $db);
+												} elseif ($check_status['IS_REGISTERED'] == 1) {
+													$fetch_pass = fm_check_pass($inserted_pass, $event['source']['groupId'], $db);
 
-													if ($target_gf_id == 0) {
-														$text_response = "Umm ... no keyword with that name in this group" ;
-													} else {
+													if ($fetch_pass['IS_PASS_MATCH'] == 0) {
+														$text_response = "You entered the wrong password. Please check again" ;
+													} elseif ($fetch_pass['IS_PASS_MATCH'] == 1) {
+														$target_unique_id = fm_get_unique_id($event['source']['groupId'], $db);
+														$target_gf_id_list = fm_get_gf_id_array($target_unique_id, $db);
 
-														$personal_id_list = fm_get_personal_id($target_gf_id, $db);
-
-														if ($personal_id_list === 0) {
-															$text_response = "Sorry, looks like nobody linked to that ping yet" ;
-														} else {
-															$target_name = fm_get_group_description($event['source']['groupId'], $db) ;
-															$number_of_ping = 0 ;
-
-															if (isset($exploded_Message[2])) {
-																$additional_Message = explode(" ", $message['text'],3);
-																$messages_to_send = $additional_Message[2] ;
-															} else {
-																$messages_to_send = "- - Nothing Included - - " ;
-															}
-
-															while ($id_to_ping = mysqli_fetch_array($personal_id_list)) {
-											                    $client->pushMessage(array(
-											                        'to' => $id_to_ping['PERSONAL_ID'],
-											                        'messages' => array(
-											                            array(
-											                                'type' => 'text',
-											                                'text' =>  "<NEW PING RECEIVED>" . PHP_EOL . PHP_EOL . 
-											                                "From : " . PHP_EOL . "> " . $target_name . PHP_EOL . 
-											                                "ID : " . $group_unique_id . PHP_EOL . 
-											                                "To : " . $exploded_Message[1] . PHP_EOL . PHP_EOL .
-											                                "Message : " . PHP_EOL . $messages_to_send
-											                            ),
-											                            array(
-											                                'type' => 'text',
-											                                'text' => "You have a new ping ~"
-											                            )
-											                        )
-											                    ));
-											                    $number_of_ping += 1 ;
-												            }
-
-												            if (isset($additional_Message)) {
-												            	$send_status = "Ping success to " . $number_of_ping . " linked account with additional messages" ;
-															} else {
-																$send_status = "Ping success to " . $number_of_ping . " linked account" ;
-															}
-
-												            $client->pushMessage(array(
-										                        'to' => $event['source']['groupId'],
-										                        'messages' => array(
-										                            array(
-										                                'type' => 'text',
-										                                'text' => $send_status
-										                            )
-										                        )
-										                    ));
-
-												            $send_success = 1 ;
-
+														while ($gf_to_delete = mysqli_fetch_array($target_gf_id_list)) {
+															fm_delete_info_via_gf_id($gf_to_delete['GF_ID'], "LINKED_ACC", $db);
 														}
-
+														fm_delete_info_via_unique_id($target_unique_id, "GROUP_FUNCTION", $db);
+														fm_delete_info_via_unique_id($target_unique_id, "GROUP_INFORMATION", $db);
+														
+														$text_response = "Group Successfully Removed";	
+													
 													}
-
-												} elseif ($keyword_status == 0) {
-													$text_response = "Your group doesn't have any ping yet" ;
-
+													
 												}
 
 
-											} elseif ($register_status['IS_REGISTERED'] == 0) {
-												$text_response = "Your Group Is Not Registered Yet" ;
-											}	
-
-										}
-
-					                    mysqli_close($db);
-
-										if (!isset($send_success)) {
-						                    $client->replyMessage(array(
-							                        'replyToken' => $event['replyToken'],
-							                        'messages' => array(
-							                            array(
-							                                'type' => 'text',
-							                                'text' => $text_response
-							                            )
-							                        )
-							                ));
-										}
-										break;
-
-									case '..whosubs' :
-										if (!isset($exploded_Message[1])) {
-											$text_response = 'Not enough information to know who is linked.' . PHP_EOL . 'Need keyword' ;
-										} else {
-											$check_group = fm_check_unique_id($event['source']['groupId'], $db);
-											if ( $check_group == 0 ) {
-												$text_response = "Your Group Isn't Registered Yet" ;
-											} else {
-												$unique_id = fm_get_unique_id($event['source']['groupId'], $db);
-												$target_keyword = $exploded_Message[1] ;
-												$search_result = fm_get_keyword_secure($target_keyword, $unique_id, $db);
-												if ( $search_result === 0) {
-													$text_response = "No ping with that name in this group";
-													$return_var = 1 ;
-												} else {
-													$fetch_gf_id = fm_get_gf_id_secure($search_result, $unique_id, $db) ;
-													$is_linked_exist = fm_check_linked_id($fetch_gf_id, $db);
-													if ($is_linked_exist == 0) {
-														$text_response = "Nobody linked to this ping yet" ;
-														$return_var = 1 ;
-													} elseif ($is_linked_exist == 1) {
-														$personal_id_list = fm_get_personal_id($fetch_gf_id, $db);
-														$text_response = "People linked to " . $target_keyword . PHP_EOL . PHP_EOL;
-														while ($profile_id_to_search = mysqli_fetch_array($personal_id_list)) {
-															$result = $client->getProfile($profile_id_to_search['PERSONAL_ID']);
-															$result = json_decode($result, true);
-															$text_response .= "> " . $result['displayName'] . PHP_EOL;
-														}
-														$return_var = 2 ;
-													}
-												}
 											}
-										}
-			                    		mysqli_close($db);
+											
+				                    		mysqli_close($db);
 
-			                    		if ($return_var == 2) {
 				                    		$client->replyMessage(array(
 							                        'replyToken' => $event['replyToken'],
 							                        'messages' => array(
 							                            array(
 							                                'type' => 'text',
 							                                'text' => $text_response
-							                            ),
-							                            array(
-							                                'type' => 'text',
-							                                'text' => "Here's all the people linked to that ping~"
 							                            )
 							                        )
 							                ));
-			                    		} elseif ($return_var == 1) {
+											break;
+										
+										case '..rename':
+											if (!isset($exploded_Message[1]) OR !isset($exploded_Message[2]) OR !isset($exploded_Message[3])) {
+												$text_response = 'Not enough information to rename mention.' . PHP_EOL . PHP_EOL . 'Need old mention name, new mention name and group pass' ;
+											} elseif (count($exploded_Message) == 4) {
+												$group_status = fm_check_unique_id($event['source']['groupId'], $db) ;
+												if ( $group_status == 0 ) {
+													$text_response = "Your group isn't registered yet" ;
+												} else {
+													$group_pass = fm_check_pass($exploded_Message[3], $event['source']['groupId'], $db);
+													if ($group_pass['IS_PASS_MATCH'] == 1) {
+														$unique_id = fm_get_unique_id($event['source']['groupId'], $db);
+														$check_old = fm_check_keyword($exploded_Message[1], $unique_id, $db);
+														if ($check_old == 1) {
+															$check_new = fm_check_keyword($exploded_Message[2], $unique_id, $db);
+															if ($check_new == 0) {
+																fm_update_keyword($unique_id, $exploded_Message[1], $exploded_Message[2], $db);
+																$text_response = "Mention Name Successfully Changed" ;
+															} elseif ($check_new == 1) {
+																$text_response = "A duplicate mention name on the new name detected. Please choose a different one" ;
+															}
+														} elseif($check_old == 0) {
+															$text_response = "Your group doesn't have mention with that name" ;
+														}
+													} elseif ($group_pass['IS_PASS_MATCH'] == 0) {
+														$text_response = 'You entered the wrong password. Please check again' ;
+													} 
+												}
+											} elseif (count($exploded_Message) > 3){
+												$text_response = "Sorry, you can only create mention name with the length of one word. You might want to use underscore instead for the space";
+											}
+				                    		mysqli_close($db);
+				                    		$client->replyMessage(array(
+							                        'replyToken' => $event['replyToken'],
+							                        'messages' => array(
+							                            array(
+							                                'type' => 'text',
+							                                'text' => $text_response
+							                            )
+							                        )
+							                ));							
+											break;
+
+										case '..chgname':
+											if (!isset($exploded_Message[1]) AND !isset($exploded_Message[2])) {
+												$text_response = 'Not enough information to change group nickname.' . PHP_EOL . PHP_EOL . 'Need the new group name and group pass' ;
+											} else {		
+												$check_status = fm_check_group_information($event['source']['groupId'], $db);
+
+												if ($check_status['IS_REGISTERED'] == 0) {
+													$text_response = "Your group is not registered yet" ;
+
+												} elseif ($check_status['IS_REGISTERED'] == 1) {
+													$pass = $exploded_Message[count($exploded_Message)-1];
+													$fetch_pass = fm_check_pass($pass, $event['source']['groupId'], $db);
+
+													if ($fetch_pass['IS_PASS_MATCH'] == 0) {
+														$text_response = "You entered the wrong password. Please check again" ;
+													} elseif ($fetch_pass['IS_PASS_MATCH'] == 1) {
+														
+														$removed_command = explode(" ", $message['text'],2);
+														$new_name_array = explode(" ", $removed_command[1],-1);
+														$new_name = implode(" ", $new_name_array);
+														
+														if (fm_get_group_description($event['source']['groupId'], $db) == $new_name) {
+															$text_response = "Hmm ... your old and new name is kinda the same. No need to change" ;
+														} else {
+															$unique_id = fm_get_unique_id($event['source']['groupId'], $db);
+															fm_update_description($unique_id, $new_name, $db);
+															$text_response = "Group Nickname Successfully Changed";
+														}
+
+													}
+													
+												}
+											}
+				                    		mysqli_close($db);
+
 			                    			$client->replyMessage(array(
 							                        'replyToken' => $event['replyToken'],
 							                        'messages' => array(
@@ -1664,175 +1919,41 @@
 							                            )
 							                        )
 							                ));
-			                    		}	
-										break;
+											break;
 
-									case '..revoke':
-										if (!isset($exploded_Message[1])) {
-											$text_response = 'Not enough information to remove account.' . PHP_EOL . 'Need group pass' ;
-										} else {											
-											$inserted_pass = $exploded_Message[1] ;
-											$check_status = fm_check_group_information($event['source']['groupId'], $db);
-
-											if ($check_status['IS_REGISTERED'] == 0) {
-												$text_response = "Your group is not registered yet" ;
-
-											} elseif ($check_status['IS_REGISTERED'] == 1) {
-												$fetch_pass = fm_check_pass($inserted_pass, $event['source']['groupId'], $db);
-
-												if ($fetch_pass['IS_PASS_MATCH'] == 0) {
-													$text_response = "You entered the wrong password. Please check again" ;
-												} elseif ($fetch_pass['IS_PASS_MATCH'] == 1) {
-													$target_unique_id = fm_get_unique_id($event['source']['groupId'], $db);
-													$target_gf_id_list = fm_get_gf_id_array($target_unique_id, $db);
-
-													while ($gf_to_delete = mysqli_fetch_array($target_gf_id_list)) {
-														fm_delete_info_via_gf_id($gf_to_delete['GF_ID'], "LINKED_ACC", $db);
-													}
-													fm_delete_info_via_unique_id($target_unique_id, "GROUP_FUNCTION", $db);
-													fm_delete_info_via_unique_id($target_unique_id, "GROUP_INFORMATION", $db);
-													
-													$text_response = "Group Successfully Removed";	
-												
-												}
-												
-											}
-
-
-										}
-										
-			                    		mysqli_close($db);
-
-			                    		$client->replyMessage(array(
-						                        'replyToken' => $event['replyToken'],
-						                        'messages' => array(
-						                            array(
-						                                'type' => 'text',
-						                                'text' => $text_response
-						                            )
-						                        )
-						                ));
-										break;
-									
-									case '..rename':
-										if (!isset($exploded_Message[1]) OR !isset($exploded_Message[2]) OR !isset($exploded_Message[3])) {
-											$text_response = 'Not enough information to rename ping.' . PHP_EOL . PHP_EOL . 'Need old ping name, new ping name and group pass' ;
-										} elseif (count($exploded_Message) == 4) {
-											$group_status = fm_check_unique_id($event['source']['groupId'], $db) ;
-											if ( $group_status == 0 ) {
-												$text_response = "Your group isn't registered yet" ;
+										case '..chgpass':
+											if (!isset($exploded_Message[1])) {
+												$text_response = 'Not enough information to change pass.' . PHP_EOL . PHP_EOL . 'Need the new pass' ;
 											} else {
-												$group_pass = fm_check_pass($exploded_Message[3], $event['source']['groupId'], $db);
-												if ($group_pass['IS_PASS_MATCH'] == 1) {
+												$check_group = fm_check_unique_id($event['source']['groupId'], $db);
+												if ( $check_group == 0 ) {
+													$text_response = "Your Group Isn't Registered Yet" ;
+												} else {
 													$unique_id = fm_get_unique_id($event['source']['groupId'], $db);
-													$check_old = fm_check_keyword($exploded_Message[1], $unique_id, $db);
-													if ($check_old == 1) {
-														$check_new = fm_check_keyword($exploded_Message[2], $unique_id, $db);
-														if ($check_new == 0) {
-															fm_update_keyword($unique_id, $exploded_Message[1], $exploded_Message[2], $db);
-															$text_response = "Ping Name Successfully Changed" ;
-														} elseif ($check_new == 1) {
-															$text_response = "A duplicate ping name on the new name detected. Please choose a different one" ;
-														}
-													} elseif($check_old == 0) {
-														$text_response = "Your group doesn't have ping with that name" ;
-													}
-												} elseif ($group_pass['IS_PASS_MATCH'] == 0) {
-													$text_response = 'You entered the wrong password. Please check again' ;
-												} 
-											}
-										} elseif (count($exploded_Message) > 3){
-											$text_response = "Sorry, you can only create keyword with the length of one word. You might want to use underscore instead for the space";
-										}
-			                    		mysqli_close($db);
-			                    		$client->replyMessage(array(
-						                        'replyToken' => $event['replyToken'],
-						                        'messages' => array(
-						                            array(
-						                                'type' => 'text',
-						                                'text' => $text_response
-						                            )
-						                        )
-						                ));							
-										break;
-
-									case '..chgname':
-										if (!isset($exploded_Message[1]) AND !isset($exploded_Message[2])) {
-											$text_response = 'Not enough information to change group nickname.' . PHP_EOL . PHP_EOL . 'Need the new group name and group pass' ;
-										} else {		
-											$check_status = fm_check_group_information($event['source']['groupId'], $db);
-
-											if ($check_status['IS_REGISTERED'] == 0) {
-												$text_response = "Your group is not registered yet" ;
-
-											} elseif ($check_status['IS_REGISTERED'] == 1) {
-												$pass = $exploded_Message[count($exploded_Message)-1];
-												$fetch_pass = fm_check_pass($pass, $event['source']['groupId'], $db);
-
-												if ($fetch_pass['IS_PASS_MATCH'] == 0) {
-													$text_response = "You entered the wrong password. Please check again" ;
-												} elseif ($fetch_pass['IS_PASS_MATCH'] == 1) {
-													
-													$removed_command = explode(" ", $message['text'],2);
-													$new_name_array = explode(" ", $removed_command[1],-1);
-													$new_name = implode(" ", $new_name_array);
-													
-													if (fm_get_group_description($event['source']['groupId'], $db) == $new_name) {
-														$text_response = "Hmm ... your old and new name is kinda the same. Nothing to change" ;
-													} else {
-														$unique_id = fm_get_unique_id($event['source']['groupId'], $db);
-														fm_update_description($unique_id, $new_name, $db);
-														$text_response = "Group Nickname Successfully Changed";
-													}
-
+													$new_pass = $exploded_Message[1] ;
+													fm_update_pass($unique_id, $new_pass, $db);
+													$text_response = "Group Pass Successfully Changed" ;
 												}
-												
 											}
-										}
-			                    		mysqli_close($db);
+				                    		mysqli_close($db);
 
-		                    			$client->replyMessage(array(
-						                        'replyToken' => $event['replyToken'],
-						                        'messages' => array(
-						                            array(
-						                                'type' => 'text',
-						                                'text' => $text_response 
-						                            )
-						                        )
-						                ));
-										break;
+			                    			$client->replyMessage(array(
+							                        'replyToken' => $event['replyToken'],
+							                        'messages' => array(
+							                            array(
+							                                'type' => 'text',
+							                                'text' => $text_response 
+							                            )
+							                        )
+							                ));
+											break;
 
-									case '..chgpass':
-										if (!isset($exploded_Message[1])) {
-											$text_response = 'Not enough information to change pass.' . PHP_EOL . PHP_EOL . 'Need the new pass' ;
-										} else {
-											$check_group = fm_check_unique_id($event['source']['groupId'], $db);
-											if ( $check_group == 0 ) {
-												$text_response = "Your Group Isn't Registered Yet" ;
-											} else {
-												$unique_id = fm_get_unique_id($event['source']['groupId'], $db);
-												$new_pass = $exploded_Message[1] ;
-												fm_update_pass($unique_id, $new_pass, $db);
-												$text_response = "Group Pass Successfully Changed" ;
-											}
-										}
-			                    		mysqli_close($db);
-
-		                    			$client->replyMessage(array(
-						                        'replyToken' => $event['replyToken'],
-						                        'messages' => array(
-						                            array(
-						                                'type' => 'text',
-						                                'text' => $text_response 
-						                            )
-						                        )
-						                ));
-										break;
-
-									default:
-										# code...
-										break;
-								}	
+										default:
+											# code...
+											break;
+									}	
+									
+								}
 
 							}
 
@@ -1950,7 +2071,7 @@
 	                        'messages' => array(
 	                            array(
 	                                'type' => 'text',
-	                                'text' => 'Please enter the ping name now'
+	                                'text' => 'Please enter the mention name now'
 	                            )
 	                        )
 	                	));
@@ -1976,7 +2097,7 @@
 	                        'messages' => array(
 	                            array(
 	                                'type' => 'text',
-	                                'text' => 'Please enter the new ping name now'
+	                                'text' => 'Please enter the new mention name now'
 	                            )
 	                        )
 	                	));
@@ -1989,7 +2110,7 @@
 	                        'messages' => array(
 	                            array(
 	                                'type' => 'text',
-	                                'text' => 'Please enter the ping name you want to delete now'
+	                                'text' => 'Please enter the mention name you want to delete now'
 	                            )
 	                        )
 	                	));
@@ -2028,7 +2149,7 @@
 	                        'messages' => array(
 	                            array(
 	                                'type' => 'text',
-	                                'text' => 'Please enter your old group ping name now'
+	                                'text' => 'Please enter your old mention name now'
 	                            )
 	                        )
 	                	));
@@ -2041,7 +2162,7 @@
 	                        'messages' => array(
 	                            array(
 	                                'type' => 'text',
-	                                'text' => 'Please enter the ping name you want to know'
+	                                'text' => 'Please enter the mention name you want to know now'
 	                            )
 	                        )
 	                	));
