@@ -1286,9 +1286,9 @@
 								                                			'data' => 'changePass'	
 								                                		),
 								                                		array(
-								                                			'type' => 'message',
+								                                			'type' => 'postback',
 								                                			'label' => 'Delete Group',
-								                                			'text' => 'groupRevoke'	
+								                                			'data' => 'groupRevoke'	
 								                                		)
 								                                	)
 						                                		),
