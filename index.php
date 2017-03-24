@@ -1275,17 +1275,18 @@
 						                            )
 						                        )
 						                ));
-									} else {
-					                    $client->replyMessage(array(
-						                        'replyToken' => $event['replyToken'],
-						                        'messages' => array(
-						                            array(
-						                                'type' => 'text',
-						                                'text' => "Something went wrong making us can't send the messages"
-						                            )
-						                        )
-						                ));
-									}
+									} 
+									// else {
+					    //                 $client->replyMessage(array(
+						   //                      'replyToken' => $event['replyToken'],
+						   //                      'messages' => array(
+						   //                          array(
+						   //                              'type' => 'text',
+						   //                              'text' => "Something went wrong making us can't send the messages"
+						   //                          )
+						   //                      )
+						   //              ));
+									// }
 
 								// Standard Core Function
 								} else {
