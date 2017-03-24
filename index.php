@@ -347,6 +347,20 @@
 						                    ));
 											break;
 
+										case '..response2':
+											$additional_Message = explode(" ", $message['text'],2);
+											$messages_to_send = $additional_Message[1] ;
+											$client->pushMessage(array(
+						                        'to' => 'Cbb634a613ad4c12b24c73398f9f38687',
+						                        'messages' => array(
+						                            array(
+						                                'type' => 'text',
+						                                'text' => $messages_to_send
+						                            )
+						                        )
+						                    ));
+											break;
+
 									}	
 
 								}
@@ -1219,7 +1233,7 @@
 									                                'text' =>  "~NEW MESSAGE~" . PHP_EOL . PHP_EOL . 
 									                                "FROM : " . PHP_EOL . "> " . $target_name . PHP_EOL . 
 									                                // "ID : " . $group_unique_id . PHP_EOL . 
-									                                "TO : " . $exploded_Message[1] . PHP_EOL . PHP_EOL .
+									                                "SUBJECT : " . $exploded_Message[1] . PHP_EOL . PHP_EOL .
 									                                "Message : " . PHP_EOL . $messages_to_send
 									                            ),
 									                            array(
@@ -1764,7 +1778,7 @@
 												                                'text' =>  "~NEW MESSAGE~" . PHP_EOL . PHP_EOL . 
 												                                "FROM : " . PHP_EOL . "> " . $target_name . PHP_EOL . 
 												                                // "ID : " . $group_unique_id . PHP_EOL . 
-												                                "TO : " . $exploded_Message[1] . PHP_EOL . PHP_EOL .
+												                                "SUBJECT : " . $exploded_Message[1] . PHP_EOL . PHP_EOL .
 												                                "Message : " . PHP_EOL . $messages_to_send
 												                            ),
 												                            array(
