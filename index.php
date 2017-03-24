@@ -698,7 +698,7 @@
 
 							                                	'type' => "confirm",
 							                                	
-							                                	'text' => "You're going to mention [" . $final_content[1] . "]" . PHP_EOL . 
+							                                	'text' => "You're going to mention" . PHP_EOL . "> " . $final_content[1] . PHP_EOL . 
 							                                				"Proceed ?",
 
 							                                	// Action to take between two
@@ -1350,8 +1350,8 @@
 									                                	'actions' => array(
 									                                		array(
 									                                			'type' => 'postback',
-									                                			'label' => 'Mention!',
-									                                			'data' => 'groupPing'
+									                                			'label' => 'How To Mention ?',
+									                                			'data' => 'howMention'
 									                                		),
 									                                		array(
 									                                			'type' => 'message',
@@ -1369,34 +1369,9 @@
 							                                		// Carousel Second Object
 							                                		array(
 							                                			'title' => "Group Menu (2 of 5)",
-							                                			'text' => 'Command used for Group Management',
-
-							                                			// Action inside of carousel 2
-									                                	'actions' => array(
-									                                		array(
-									                                			'type' => 'postback',
-									                                			'label' => 'Change Nickname',
-									                                			'data' => 'changeNickname'	
-									                                		),
-									                                		array(
-									                                			'type' => 'postback',
-									                                			'label' => 'Change Pass',
-									                                			'data' => 'changePass'	
-									                                		),
-									                                		array(
-									                                			'type' => 'postback',
-									                                			'label' => 'Delete Group',
-									                                			'data' => 'groupRevoke'	
-									                                		)
-									                                	)
-							                                		),
-
-							                                		// Carousel Third Object
-							                                		array(
-							                                			'title' => "Group Menu (3 of 5)",
 							                                			'text' => 'Command used for Mention Management',
 
-							                                			// Action inside of carousel 3
+							                                			// Action inside of carousel 2
 									                                	'actions' => array(
 									                                		array(
 									                                			'type' => 'postback',
@@ -1416,37 +1391,12 @@
 									                                	)
 							                                		),
 
-							                                		// Carousel Fourth Object
+							                                		// Carousel Third Object
 							                                		array(
-							                                			'title' => "Group Menu (4 of 5)",
-							                                			'text' => "Command used for Bot Feedback & Help",
+							                                			'title' => "Group Menu (3 of 5)",
+							                                			'text' => 'Additional Command for your group',
 
-							                                			// Action inside of carousel 4
-									                                	'actions' => array(
-									                                		array(
-									                                			'type' => 'message',
-									                                			'label' => 'Help',
-									                                			'text' => '..help'	
-									                                		),
-									                                		array(
-									                                			'type' => 'message',
-									                                			'label' => 'About Me',
-									                                			'text' => 'Information about me'	
-									                                		),
-									                                		array(
-									                                			'type' => 'message',
-									                                			'label' => 'Feedback Me',
-									                                			'text' => 'You can feedback me from one of the following way :'	
-									                                		)
-									                                	)
-							                                		),
-
-							                                		// Carousel Fifth Object
-							                                		array(
-							                                			'title' => "Group Menu (5 of 5)",
-							                                			'text' => "Miscellaneous Command for your group",
-
-							                                			// Action inside of carousel 5
+							                                			// Action inside of carousel 3
 									                                	'actions' => array(
 									                                		array(
 									                                			'type' => 'postback',
@@ -1462,6 +1412,56 @@
 									                                			'type' => 'postback',
 									                                			'label' => '~Reserved~',
 									                                			'data' => "reserved"	
+									                                		)
+									                                	)
+							                                		),
+
+							                                		// Carousel Fourth Object
+							                                		array(
+							                                			'title' => "Group Menu (4 of 5)",
+							                                			'text' => "Command used for Group Settings",
+
+							                                			// Action inside of carousel 4
+							                                			'actions' => array(
+									                                		array(
+									                                			'type' => 'postback',
+									                                			'label' => 'Change Nickname',
+									                                			'data' => 'changeNickname'	
+									                                		),
+									                                		array(
+									                                			'type' => 'postback',
+									                                			'label' => 'Change Pass',
+									                                			'data' => 'changePass'	
+									                                		),
+									                                		array(
+									                                			'type' => 'postback',
+									                                			'label' => 'Delete Group',
+									                                			'data' => 'groupRevoke'	
+									                                		)
+									                                	)
+							                                		),
+
+							                                		// Carousel Fifth Object
+							                                		array(
+							                                			'title' => "Group Menu (5 of 5)",
+							                                			'text' => "Command used for Bot Feedback & Help",
+
+							                                			// Action inside of carousel 5
+									                                	'actions' => array(
+									                                		array(
+									                                			'type' => 'message',
+									                                			'label' => 'Help',
+									                                			'text' => '..help'	
+									                                		),
+									                                		array(
+									                                			'type' => 'message',
+									                                			'label' => 'About Me',
+									                                			'text' => 'Information about me'	
+									                                		),
+									                                		array(
+									                                			'type' => 'message',
+									                                			'label' => 'Feedback Me',
+									                                			'text' => 'You can feedback me from one of the following way :'	
 									                                		)
 									                                	)
 							                                		)
@@ -2185,6 +2185,21 @@
 	                	));
     					break;
 
+    				case 'howMention':
+						$client->replyMessage(array(
+	                        'replyToken' => $event['replyToken'],
+	                        'messages' => array(
+	                            array(
+	                                'type' => 'text',
+	                                'text' => "Type '@' followed by one of your group created mention (without spaces) to inform peoples subscribed to it." . PHP_EOL . PHP_EOL .
+	                                	"You can also add additional message by providing spaces after the mention." . PHP_EOL . PHP_EOL . 
+	                                	"Examples : " . PHP_EOL . 
+	                                	"> @news Extra Messages" . PHP_EOL . 
+	                                	"> @members"
+	                            )
+	                        )
+	                	));
+						break;
 
 					case 'groupPing':
 						file_put_contents('./temp/' . $event['source']['groupId'] . '.txt', '..ping' . PHP_EOL , LOCK_EX);
