@@ -2135,7 +2135,11 @@
 							if (substr($message['text'], 0, 2) === "..") {
 								fm_create_log_data($event['source'], $message['text']);		
 							}
-						
+
+							if (substr($message['text'], 0, 1) === "@") {
+								fm_create_log_data($event['source'], $message['text']);		
+							}
+
 							// Double Check For Closing Database Connection
 							if (is_resource($db) && get_resource_type($db) === 'mysql link') {
 								mysqli_close($db);
