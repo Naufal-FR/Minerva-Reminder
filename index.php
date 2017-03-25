@@ -207,132 +207,6 @@
 						                    ));
 											break;
 
-										case '..debugCarMax':
-						                    $client->replyMessage(array(
-						                        'replyToken' => $event['replyToken'],
-						                        'messages' => array(
-
-						                        	// First Message
-						                            array(
-						                                'type' => 'template',
-
-						                                'altText' => 'Only works on Mobile LINE',
-
-						                                // Carousel Header
-						                                'template' => array(
-
-						                                	'type' => "carousel",
-
-						                                	// Carousel Object
-						                                	'columns' => array(
-						                                		
-						                                		// Carousel First Object
-						                                		array(
-						                                			'title' => 'Title 1',
-						                                			'text' => 'This is explanation for Title 1',
-
-						                                			// Action inside of carousel 1
-								                                	'actions' => array(
-								                                		array(
-								                                			'type' => 'message',
-								                                			'label' => 'Menu 1',
-								                                			'text' => 'I choose Menu 1 from Title 1'
-								                                		),
-								                                		array(
-								                                			'type' => 'message',
-								                                			'label' => 'Menu 2',
-								                                			'text' => 'I choose Menu 2 from Title 1'	
-								                                		)
-								                                	)
-						                                		),
-						                                		
-						                                		// Carousel Second Object
-						                                		array(
-						                                			'title' => 'Title 2',
-						                                			'text' => 'This is explanation for Title 2',
-
-						                                			// Action inside of carousel 1
-								                                	'actions' => array(
-								                                		array(
-								                                			'type' => 'message',
-								                                			'label' => 'Menu 1',
-								                                			'text' => 'I choose Menu 1 from Title 2'
-								                                		),
-								                                		array(
-								                                			'type' => 'message',
-								                                			'label' => 'Menu 2',
-								                                			'text' => 'I choose Menu 2 from Title 2'	
-								                                		)
-								                                	)
-						                                		),
-
-						                                		// Carousel Third Object
-						                                		array(
-						                                			'title' => 'Title 3',
-						                                			'text' => 'This is explanation for Title 3',
-
-						                                			// Action inside of carousel 1
-								                                	'actions' => array(
-								                                		array(
-								                                			'type' => 'message',
-								                                			'label' => 'Menu 1',
-								                                			'text' => 'I choose Menu 1 from Title 3'
-								                                		),
-								                                		array(
-								                                			'type' => 'message',
-								                                			'label' => 'Menu 2',
-								                                			'text' => 'I choose Menu 2 from Title 3'	
-								                                		)
-								                                	)
-						                                		),
-
-						                                		// Carousel Fourth Object
-						                                		array(
-						                                			'title' => 'Title 4',
-						                                			'text' => 'This is explanation for Title 4',
-
-						                                			// Action inside of carousel 1
-								                                	'actions' => array(
-								                                		array(
-								                                			'type' => 'message',
-								                                			'label' => 'Menu 1',
-								                                			'text' => 'I choose Menu 1 from Title 4'
-								                                		),
-								                                		array(
-								                                			'type' => 'message',
-								                                			'label' => 'Menu 2',
-								                                			'text' => 'I choose Menu 2 from Title 4'	
-								                                		)
-								                                	)
-						                                		),
-
-						                                		// Carousel Fifth Object
-						                                		array(
-						                                			'title' => 'Title 5',
-						                                			'text' => 'This is explanation for Title 5',
-
-						                                			// Action inside of carousel 1
-								                                	'actions' => array(
-								                                		array(
-								                                			'type' => 'message',
-								                                			'label' => 'Menu 1',
-								                                			'text' => 'I choose Menu 1 from Title 5'
-								                                		),
-								                                		array(
-								                                			'type' => 'message',
-								                                			'label' => 'Menu 2',
-								                                			'text' => 'I choose Menu 2 from Title 5'	
-								                                		)
-								                                	)
-						                                		)
-
-						                                	)
-						                                )
-						                            )
-						                        )
-						                    ));
-											break;
-
 										case '..response':
 											$additional_Message = explode(" ", $message['text'],2);
 											$messages_to_send = $additional_Message[1] ;
@@ -356,6 +230,18 @@
 						                            array(
 						                                'type' => 'text',
 						                                'text' => $messages_to_send
+						                            )
+						                        )
+						                    ));
+											break;
+
+										case 'test1':
+											$client->pushMessage(array(
+						                        'to' => $event['source']['userId'],
+						                        'messages' => array(
+						                            array(
+						                                'type' => 'text',
+						                                'text' => $group_array_help[0]
 						                            )
 						                        )
 						                    ));
@@ -1920,9 +1806,11 @@
 														$target_unique_id = fm_get_unique_id($event['source']['groupId'], $db);
 														$target_gf_id_list = fm_get_gf_id_array($target_unique_id, $db);
 
-														if ($target_gf_id_list != 0) {
+														if ($target_gf_id_list !== 0) {
 															while ($gf_to_delete = mysqli_fetch_array($target_gf_id_list)) {
-																fm_delete_info_via_gf_id($gf_to_delete['GF_ID'], "LINKED_ACC", $db);
+																if (fm_check_linked_id($gf_to_delete['GF_ID'], $db) == 1) {
+																	fm_delete_info_via_gf_id($gf_to_delete['GF_ID'], "LINKED_ACC", $db);
+																}
 															}
 														}
 														fm_delete_info_via_unique_id($target_unique_id, "GROUP_FUNCTION", $db);
@@ -2086,28 +1974,49 @@
 
 								case '..help':
 									if (isset($event['source']['userId'])) {
-										$text_response = $help_personal ;
-									} elseif (isset($event['source']['groupId'])) {
-										$text_response = $help_group ;
-									} else {
-										$text_response = "No help available for this room type" ;
-									}
-
-		                    		mysqli_close($db);
-
-		                    		$client->replyMessage(array(
+										$client->replyMessage(array(
 					                        'replyToken' => $event['replyToken'],
 					                        'messages' => array(
 					                            array(
-					                                'type' => 'text',
-					                                'text' => "~COMMAND EXPLANATION~" . PHP_EOL . PHP_EOL . $text_response
-					                            ),
-					                            array(
-					                                'type' => 'text',
-					                                'text' => "Here's the explanation of commands i can do here ~"
+					                                'type' => 'template',
+
+					                                'altText' => "If you use LINE in PC, type '..helpPC' to view this type of menu",
+
+					                                // The Button Content
+					                                'template' => array(
+
+					                                	'type' => "buttons",
+					                                	'title' => "Personal Help Menu",
+					                                	'text' => "What can i help you with ?",
+
+					                                	// Action to take between the three
+					                                	'actions' => array(
+					                                		array(
+					                                			'type' => 'message',
+					                                			'label' => 'About Me',
+					                                			'text' => 'Explanation About Me'
+					                                		),
+					                                		array(
+					                                			'type' => 'postback',
+					                                			'label' => 'Command Explanation',
+					                                			'data' => 'explainCommand'				                                				
+					                                		),
+					                                		array(
+					                                			'type' => 'message',
+					                                			'label' => 'Give Feedback',
+					                                			'text' => 'To Be Give Feedback Function'	
+					                                		)
+					                                	)
+					                                )
 					                            )
 					                        )
-					                ));
+						                ));
+
+									} elseif (isset($event['source']['groupId'])) {
+
+									}
+
+		                    		mysqli_close($db);
 
 									break;
 								
