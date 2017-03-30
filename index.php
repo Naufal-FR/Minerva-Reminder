@@ -1,3 +1,10 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta name="dicoding:email" content="amx.idproject28@gmail.com">
+</head>
+</html>
+
 <?php
 
 	require_once( __DIR__ . '/src/LINEBotTiny.php');
@@ -76,7 +83,7 @@
 						                            array(
 						                                'type' => 'template',
 
-						                                'altText' => 'Only applicable in LINE Mobile',
+						                                'altText' => "If you use LINE PC type '..helpPC' to see all the available command",
 
 						                                // The Confirm Content
 						                                'template' => array(
@@ -113,7 +120,7 @@
 						                            array(
 						                                'type' => 'template',
 
-						                                'altText' => 'Only applicable in LINE Mobile',
+						                                'altText' => "If you use LINE PC type '..helpPC' to see all the available command",
 
 						                                // The Button Content
 						                                'template' => array(
@@ -150,7 +157,7 @@
 						                            array(
 						                                'type' => 'template',
 
-						                                'altText' => 'Only works on Mobile LINE',
+						                                'altText' => "If you use LINE PC type '..helpPC' to see all the available command",
 
 						                                // Carousel Header
 						                                'template' => array(
@@ -296,7 +303,7 @@
 					                            array(
 					                                'type' => 'template',
 
-					                                'altText' => 'Only applicable in LINE Mobile',
+					                                'altText' => "If you use LINE PC type '..helpPC' to see all the available command",
 
 					                                // The Confirm Content
 					                                'template' => array(
@@ -344,7 +351,7 @@
 						                            array(
 						                                'type' => 'template',
 
-						                                'altText' => "If you use LINE in PC, type '..help' command to view this menu",
+						                                'altText' => "If you use LINE PC type '..helpPC' to see all the available command",
 
 						                                // The Button Content
 						                                'template' => array(
@@ -579,50 +586,6 @@
 							                    ));
 												break;
 
-											case '..ping':
-												file_put_contents('./temp/' . $event['source']['groupId'] . '.txt', $exploded_Message[0] . PHP_EOL , FILE_APPEND | LOCK_EX);
-												$final_content = file('./temp/' . $event['source']['groupId'] . '.txt') ;
-												$execute_ping = trim( preg_replace( '/\s+/' , ' ', ( implode(" ", $final_content) ) ) ) ;
-												$client->pushMessage(array(
-							                        'to' => $event['source']['groupId'],
-							                        'messages' => array(
-
-							                        	// First Message
-							                            array(
-							                                'type' => 'template',
-
-							                                'altText' => 'Only applicable in LINE Mobile',
-
-							                                // The Confirm Content
-							                                'template' => array(
-
-							                                	'type' => "confirm",
-							                                	
-							                                	'text' => "You're going to mention" . PHP_EOL . "> " . $final_content[1] . PHP_EOL . 
-							                                				"Proceed ?",
-
-							                                	// Action to take between two
-							                                	'actions' => array(
-							                                		array(
-							                                			'type' => 'message',
-							                                			'label' => 'Yes',
-							                                			'text' => $execute_ping
-							                                		),
-							                                		array(
-							                                			'type' => 'postback',
-							                                			'label' => 'No',
-							                                			'data' => 'cancel',
-							                                			'text' => 'No'
-							                                		)
-							                                	)
-							                                )
-							                            )
-							                        )
-							                    ));
-
-												unlink('./temp/' . $event['source']['groupId'] . '.txt');
-												
-												break;
 
 											case '..create':
 												$new_ping = $exploded_Message[0] ;
@@ -684,7 +647,7 @@
 							                            array(
 							                                'type' => 'template',
 
-							                                'altText' => 'Only applicable in LINE Mobile',
+							                                'altText' => "If you use LINE PC type '..helpPC' to see all the available command",
 
 							                                // The Confirm Content
 							                                'template' => array(
@@ -741,7 +704,7 @@
 							                            array(
 							                                'type' => 'template',
 
-							                                'altText' => 'Only applicable in LINE Mobile',
+							                                'altText' => "If you use LINE PC type '..helpPC' to see all the available command",
 
 							                                // The Confirm Content
 							                                'template' => array(
@@ -784,7 +747,7 @@
 							                            array(
 							                                'type' => 'template',
 
-							                                'altText' => 'Only applicable in LINE Mobile',
+							                                'altText' => "If you use LINE PC type '..helpPC' to see all the available command",
 
 							                                // The Confirm Content
 							                                'template' => array(
@@ -831,7 +794,7 @@
 							                            array(
 							                                'type' => 'template',
 
-							                                'altText' => 'Only applicable in LINE Mobile',
+							                                'altText' => "If you use LINE PC type '..helpPC' to see all the available command",
 
 							                                // The Confirm Content
 							                                'template' => array(
@@ -877,7 +840,7 @@
 							                            array(
 							                                'type' => 'template',
 
-							                                'altText' => 'Only applicable in LINE Mobile',
+							                                'altText' => "If you use LINE PC type '..helpPC' to see all the available command",
 
 							                                // The Confirm Content
 							                                'template' => array(
@@ -922,7 +885,7 @@
 							                            array(
 							                                'type' => 'template',
 
-							                                'altText' => 'Only applicable in LINE Mobile',
+							                                'altText' => "If you use LINE PC type '..helpPC' to see all the available command",
 
 							                                // The Confirm Content
 							                                'template' => array(
@@ -983,7 +946,7 @@
 							                            array(
 							                                'type' => 'template',
 
-							                                'altText' => 'Only applicable in LINE Mobile',
+							                                'altText' => "If you use LINE PC type '..helpPC' to see all the available command",
 
 							                                // The Confirm Content
 							                                'template' => array(
@@ -1031,7 +994,7 @@
 							                            array(
 							                                'type' => 'template',
 
-							                                'altText' => 'Only applicable in LINE Mobile',
+							                                'altText' => "If you use LINE PC type '..helpPC' to see all the available command",
 
 							                                // The Confirm Content
 							                                'template' => array(
@@ -1117,9 +1080,9 @@
 									                            array(
 									                                'type' => 'text',
 									                                'text' =>  "~NEW MESSAGE~" . PHP_EOL . PHP_EOL . 
-									                                "FROM : " . PHP_EOL . "> " . $target_name . PHP_EOL . 
+									                                "Subject : " . $exploded_Message[1] . PHP_EOL .
+									                                "From     : " . $target_name . PHP_EOL . PHP_EOL .
 									                                // "ID : " . $group_unique_id . PHP_EOL . 
-									                                "SUBJECT : " . $exploded_Message[1] . PHP_EOL . PHP_EOL .
 									                                "Message : " . PHP_EOL . $messages_to_send
 									                            ),
 									                            array(
@@ -1191,7 +1154,7 @@
 							                            array(
 							                                'type' => 'template',
 
-							                                'altText' => "If you use LINE in PC, type '..help' command to view this menu",
+							                                'altText' => "If you use LINE PC type '..helpPC' to see all the available command",
 
 							                                // The Button Content
 							                                'template' => array(
@@ -1231,7 +1194,7 @@
 							                            array(
 							                                'type' => 'template',
 
-							                                'altText' => "If you use LINE in PC, type '..help' command to view this version menu",
+							                                'altText' => "If you use LINE PC type '..helpPC' to see all the available command",
 
 							                                // Carousel Header
 							                                'template' => array(
@@ -1304,9 +1267,9 @@
 									                                			'data' => 'whoSubsTo'	
 									                                		),
 									                                		array(
-									                                			'type' => 'message',
+									                                			'type' => 'postback',
 									                                			'label' => 'Random Facts',
-									                                			'text' => 'To Be Random Facts Function'	
+									                                			'data' => 'randomFact'	
 									                                		),
 									                                		array(
 									                                			'type' => 'postback',
@@ -1351,17 +1314,17 @@
 									                                		array(
 									                                			'type' => 'message',
 									                                			'label' => 'Help',
-									                                			'text' => '..help'	
+									                                			'text' => '..helpPC'	
 									                                		),
 									                                		array(
-									                                			'type' => 'message',
+									                                			'type' => 'postback',
 									                                			'label' => 'About Me',
-									                                			'text' => 'Information about me'	
+									                                			'data' => 'aboutMe'	
 									                                		),
 									                                		array(
-									                                			'type' => 'message',
+									                                			'type' => 'uri',
 									                                			'label' => 'Feedback Me',
-									                                			'text' => 'You can feedback me from one of the following way :'	
+									                                			'uri' => "mailto:minerva.bot.developer@gmail.com?subject=BOT%20Feedback"	
 									                                		)
 									                                	)
 							                                		)
@@ -1623,108 +1586,6 @@
 				                    		mysqli_close($db);
 											break;
 
-										case '..ping':
-											if (!isset($exploded_Message[1])) {
-												$text_response = 'Not enough information to mention.' . PHP_EOL . 'Need mention name' ;
-											} else {
-												$register_status = fm_check_group_information($event['source']['groupId'], $db);
-
-												if ($register_status['IS_REGISTERED'] == 1) {
-													$group_unique_id = (int) fm_get_unique_id($event['source']['groupId'], $db) ;
-													$keyword_status = fm_check_keyword_available($group_unique_id, $db); 
-
-													if ($keyword_status > 0) {
-														$target_gf_id = fm_get_gf_id_secure($exploded_Message[1], $group_unique_id, $db);
-
-														if ($target_gf_id == 0) {
-															$text_response = "Umm ... no mention with that name in this group" ;
-														} else {
-
-															$personal_id_list = fm_get_personal_id($target_gf_id, $db);
-
-															if ($personal_id_list === 0) {
-																$text_response = "Sorry, looks like nobody subbed to that mention yet" ;
-															} else {
-																$target_name = fm_get_group_description($event['source']['groupId'], $db) ;
-																$number_of_ping = 0 ;
-
-																if (isset($exploded_Message[2])) {
-																	$additional_Message = explode(" ", $message['text'],3);
-																	$messages_to_send = $additional_Message[2] ;
-																} else {
-																	$messages_to_send = "- - Nothing Included - - " ;
-																}
-
-																while ($id_to_ping = mysqli_fetch_array($personal_id_list)) {
-												                    $client->pushMessage(array(
-												                        'to' => $id_to_ping['PERSONAL_ID'],
-												                        'messages' => array(
-												                            array(
-												                                'type' => 'text',
-												                                'text' =>  "~NEW MESSAGE~" . PHP_EOL . PHP_EOL . 
-												                                "FROM : " . PHP_EOL . "> " . $target_name . PHP_EOL . 
-												                                // "ID : " . $group_unique_id . PHP_EOL . 
-												                                "SUBJECT : " . $exploded_Message[1] . PHP_EOL . PHP_EOL .
-												                                "Message : " . PHP_EOL . $messages_to_send
-												                            ),
-												                            array(
-												                                'type' => 'text',
-												                                'text' => "You have a new mention~"
-												                            )
-												                        )
-												                    ));
-												                    $number_of_ping += 1 ;
-													            }
-
-													            if (isset($additional_Message)) {
-													            	$send_status = "Mention success to " . $number_of_ping . " subbed account with additional messages" ;
-																} else {
-																	$send_status = "Mention success to " . $number_of_ping . " subbed account" ;
-																}
-
-													            $client->pushMessage(array(
-											                        'to' => $event['source']['groupId'],
-											                        'messages' => array(
-											                            array(
-											                                'type' => 'text',
-											                                'text' => $send_status
-											                            )
-											                        )
-											                    ));
-
-													            $send_success = 1 ;
-
-															}
-
-														}
-
-													} elseif ($keyword_status == 0) {
-														$text_response = "Your group doesn't have any mention yet" ;
-
-													}
-
-
-												} elseif ($register_status['IS_REGISTERED'] == 0) {
-													$text_response = "Your Group Is Not Registered Yet" ;
-												}	
-
-											}
-
-						                    mysqli_close($db);
-
-											if (!isset($send_success)) {
-							                    $client->replyMessage(array(
-								                        'replyToken' => $event['replyToken'],
-								                        'messages' => array(
-								                            array(
-								                                'type' => 'text',
-								                                'text' => $text_response
-								                            )
-								                        )
-								                ));
-											}
-											break;
-
 										case '..whosubs' :
 											if (!isset($exploded_Message[1])) {
 												$text_response = 'Not enough information to know who is subbed.' . PHP_EOL . 'Need mention name' ;
@@ -1980,7 +1841,7 @@
 					                            array(
 					                                'type' => 'template',
 
-					                                'altText' => "If you use LINE in PC, type '..helpPC' to view this type of menu",
+					                                'altText' => "If you use LINE PC type '..helpPC' to see all the available command",
 
 					                                // The Button Content
 					                                'template' => array(
@@ -1992,19 +1853,19 @@
 					                                	// Action to take between the three
 					                                	'actions' => array(
 					                                		array(
-					                                			'type' => 'message',
-					                                			'label' => 'About Me',
-					                                			'text' => 'Explanation About Me'
-					                                		),
-					                                		array(
 					                                			'type' => 'postback',
-					                                			'label' => 'Command Explanation',
-					                                			'data' => 'explainCommand'				                                				
+					                                			'label' => 'About Me',
+					                                			'data' => 'aboutMe'
 					                                		),
 					                                		array(
 					                                			'type' => 'message',
+					                                			'label' => 'Command Explanation',
+					                                			'text' => '..helpPC'				                                				
+					                                		),
+					                                		array(
+					                                			'type' => 'uri',
 					                                			'label' => 'Give Feedback',
-					                                			'text' => 'To Be Give Feedback Function'	
+					                                			'uri' => "mailto:minerva.bot.developer@gmail.com?subject=BOT%20Feedback"	
 					                                		)
 					                                	)
 					                                )
@@ -2013,13 +1874,87 @@
 						                ));
 
 									} elseif (isset($event['source']['groupId'])) {
+										$client->replyMessage(array(
+					                        'replyToken' => $event['replyToken'],
+					                        'messages' => array(
+					                            array(
+					                                'type' => 'template',
 
+					                                'altText' => "If you use LINE PC type '..helpPC' to see all the available command",
+
+					                                // The Button Content
+					                                'template' => array(
+
+					                                	'type' => "buttons",
+					                                	'title' => "Group Help Menu",
+					                                	'text' => "What can i help you with ?",
+
+					                                	// Action to take between the three
+					                                	'actions' => array(
+					                                		array(
+					                                			'type' => 'message',
+					                                			'label' => 'About Me',
+					                                			'text' => "Hello everyone, i'm Minerva your personal assistant in personal and group chat. I can keep you stay updated on the vast amount of message you receive everyday. Just sub to any mention created on group and i'll notify you when something with that mention posted"
+					                                		),
+					                                		array(
+					                                			'type' => 'message',
+					                                			'label' => 'Command Explanation',
+					                                			'text' => '..helpPC'				                                				
+					                                		),
+					                                		array(
+					                                			'type' => 'uri',
+					                                			'label' => 'Give Feedback',
+					                                			'uri' => "mailto:minerva.bot.developer@gmail.com?subject=BOT%20Feedback"	
+					                                		)
+					                                	)
+					                                )
+					                            )
+					                        )
+						                ));
 									}
 
 		                    		mysqli_close($db);
 
 									break;
 								
+
+								case '..helpPC':
+									
+									if (isset($event['source']['userId'])) {
+										$help_array = $personal_array_help;
+									}
+									
+									if (isset($event['source']['groupId'])) {
+										$help_array = $group_array_help;	
+									} 
+
+									$header = "~COMMAND EXPLANATION~" . PHP_EOL . PHP_EOL ;
+									$combined_help = $header . "1." . $help_array[0];
+									$counter = 1 ;
+									
+									while ($counter < count($help_array)) {
+										$combined_help .= PHP_EOL . PHP_EOL . $counter + 1 . $help_array[$counter] ;
+										$counter += 1 ; 
+									}
+									
+		                    		mysqli_close($db);
+
+		                    		$client->replyMessage(array(
+					                        'replyToken' => $event['replyToken'],
+					                        'messages' => array(
+					                            array(
+					                                'type' => 'text',
+					                                'text' => $combined_help
+					                            ),
+					                            array(
+					                                'type' => 'text',
+					                                'text' => "Here's all the command explanation of what you can do here"
+					                            )
+					                        )
+					                ));
+									break;
+								
+
 								//////////////////////////////
 								// When nothing is similar //
 								////////////////////////////
@@ -2067,6 +2002,68 @@
 	                    break;
 	            }
 	            break;
+
+	        // Response When Joining Group
+	        case 'join':
+				$client->replyMessage(array(
+                    'replyToken' => $event['replyToken'],
+                    'messages' => array(
+                        array(
+                            'type' => 'text',
+                            'text' => "Hello everyone, thank you very much for inviting me to your group :D" . PHP_EOL . PHP_EOL . "I'll try my best to help your group stay updated with all the important messages."
+                        ),
+                        array(
+                            'type' => 'text',
+                            'text' => "Please type 'menu' anytime when you want to interact with me"
+                        )
+                    )
+            	));
+	        	break;
+
+			// Response When Leaving Group
+	        case 'leave':
+				$client->replyMessage(array(
+                    'replyToken' => $event['replyToken'],
+                    'messages' => array(
+                        array(
+                            'type' => 'text',
+                            'text' => "Thank you very much for inviting me before. I hope we can work together again next time. Oh, and would you mind giving me some feedback to improve myself from the link below ? Any helps would be appreciated"
+                        )
+                    )
+            	));
+	        	break;	        
+
+	        // Response When Followed By Personal Account
+	        case 'follow':
+	        	$client_name = $client->getProfile($event['source']['userId']);
+
+				$client->replyMessage(array(
+                    'replyToken' => $event['replyToken'],
+                    'messages' => array(
+                        array(
+                            'type' => 'text',
+                            'text' => "Hello " . $client_name .  ", thank you very much for adding me as your friend :D" . PHP_EOL . PHP_EOL . " I'll try my best to support you in keeping you updated with all the important messages you subscribed."
+                        ),
+                        array(
+                            'type' => 'text',
+                            'text' => "Please type 'menu' anytime when you want to interact with me"
+                        )
+                    )
+            	));
+	        	break;
+
+	        // Response When Unfollowed By Personal Account
+	        case 'unfollow':
+				$client->replyMessage(array(
+                    'replyToken' => $event['replyToken'],
+                    'messages' => array(
+                        array(
+                            'type' => 'text',
+                            'text' => "Aww, it's a shame. I'm sorry if my help doesn't really helps you. Would you mind giving me some feedback to improve myself from the link below ? Any helps would be appreciated. Oh and before i go thank you very much for trying my services. I hope we can work together again next time"
+                        )
+                    )
+            	));
+	        	break;
 
             // Postback Event
         	case 'postback':
@@ -2126,19 +2123,6 @@
 	                                	"Examples : " . PHP_EOL . 
 	                                	"> @news Extra Messages" . PHP_EOL . 
 	                                	"> @members"
-	                            )
-	                        )
-	                	));
-						break;
-
-					case 'groupPing':
-						file_put_contents('./temp/' . $event['source']['groupId'] . '.txt', '..ping' . PHP_EOL , LOCK_EX);
-        				$client->replyMessage(array(
-	                        'replyToken' => $event['replyToken'],
-	                        'messages' => array(
-	                            array(
-	                                'type' => 'text',
-	                                'text' => 'Please enter the mention name now'
 	                            )
 	                        )
 	                	));
@@ -2247,6 +2231,18 @@
 	                	));
 						break;
 
+					case 'randomFact':
+						$client->replyMessage(array(
+	                        'replyToken' => $event['replyToken'],
+	                        'messages' => array(
+	                            array(
+	                                'type' => 'text',
+	                                'text' => 'Still in development. Examples includes how long i have helped your group and how much mention i have sent'
+	                            )
+	                        )
+	                	));
+						break;
+
 					// Universal Cancel Postback        			
 					case 'cancel':
 						$client->replyMessage(array(
@@ -2255,6 +2251,18 @@
 	                            array(
 	                                'type' => 'text',
 	                                'text' => 'Okay, please pick the menu again to input a new one'
+	                            )
+	                        )
+	                	));
+						break;
+
+					case 'aboutMe':
+						$client->replyMessage(array(
+	                        'replyToken' => $event['replyToken'],
+	                        'messages' => array(
+	                            array(
+	                                'type' => 'text',
+	                                'text' => "Hello everyone, i'm Minerva your personal assistant in personal and group chat." . PHP_EOL . PHP_EOL . "I can keep you stay updated on the vast amount of message you receive everyday." . PHP_EOL . PHP_EOL . " Just sub to any mention created on group and i'll notify you when something with that mention posted"
 	                            )
 	                        )
 	                	));
