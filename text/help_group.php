@@ -1,102 +1,52 @@
 <?php
-	$help_group = 
-		"1) ..request [Nickname] [Pass]" . PHP_EOL . PHP_EOL . 
-			"> A one time action used to register your group. Make sure to fill [Nickname] with something that can be used to identify your group easily such as your own group name. You also need to provide a [PASS] for your group, preferably something easy to type." . PHP_EOL . PHP_EOL . 
-			"EX : ..request My Group Name 123abc" . PHP_EOL . PHP_EOL .
-		
-		"2) ..info" . PHP_EOL . PHP_EOL . 
-			"> Shows the callsign and pass information of your group based on the '..request' command." . PHP_EOL . PHP_EOL . 
-			"EX : ..info" . PHP_EOL . PHP_EOL .
-		
-		"3) ..list" . PHP_EOL . PHP_EOL . 
-			"> Shows all ping created by your group." . PHP_EOL . PHP_EOL .
-			"EX : ..list" . PHP_EOL . PHP_EOL .
-
-		"4) ..ping [Ping name] *[Additonal Message]" . PHP_EOL . PHP_EOL . 
-			"> Initiate ping on [Ping Name]. Every member subscribed to that [Ping Name] will be notified personally by me. You can also add additional messages after the ping name to provide better information subcribed peoples" . PHP_EOL . PHP_EOL .
-			"EX : ..ping MyPingName" . PHP_EOL . "..ping MyPingName Something urgent happen" . PHP_EOL . PHP_EOL .
-		
-		"5) ..create [PingName] [PASS]" . "" . PHP_EOL . PHP_EOL . 
-			"> Create a new ping for your group that your group member can use to link. For now you cannot create ping with space in it" . PHP_EOL . PHP_EOL . 
-			"EX : ..create GroupNewPing 12345" . PHP_EOL . PHP_EOL . 
-		
-		"6) ..rename [OldPingName] [NewPingName] [PASS]" . "" . PHP_EOL . PHP_EOL . 
-			"> Changes an existing ping into a new name. You cannot have a duplicate name" . PHP_EOL . PHP_EOL . 
-			"EX : ..rename GroupPing NewGroupPing 12345" . PHP_EOL . PHP_EOL . 
-
-		"7) ..delete [PingName] [PASS]" . "" . PHP_EOL . PHP_EOL . 
-			"> Delete a ping from your group. All member linked to that ping will be automatically unlinked." . PHP_EOL . PHP_EOL . 
-			"EX : ..delete GroupNewPing 12345" . PHP_EOL . PHP_EOL .
-		
-		"8) ..wholink [Ping Name]" . "" . PHP_EOL . PHP_EOL . 
-			"> Shows all the member profile name linked to specific ping." . PHP_EOL . PHP_EOL . 
-			"EX : ..wholink GroupNewPing" . PHP_EOL . PHP_EOL .
-		
-		"9) ..revoke [Pass]" . "" . PHP_EOL . PHP_EOL . 
-			"> WARNING : Executing this command will delete ALL data associated with your group including linked members and group pings." . PHP_EOL . PHP_EOL . 
-			"EX : ..revoke 12345" . PHP_EOL . PHP_EOL .
-		
-		"10) ..help" . "" . PHP_EOL . PHP_EOL . 
-			"> Shows all the explanation for each command depending if request sent from group or personal chat." . PHP_EOL . PHP_EOL . 
-			"EX : ..help" . PHP_EOL . PHP_EOL .
-
-		"11) ..chgname [New Name] [PASS]" . "" . PHP_EOL . PHP_EOL . 
-			"> Changes group nickname into a new one." . PHP_EOL . PHP_EOL . 
-			"EX : ..chgname Group New Name 12345" . PHP_EOL . PHP_EOL .
-
-		"12) ..chgpass [NewPass]" . "" . PHP_EOL . PHP_EOL . 
-			"> Changes group password into a new one." . PHP_EOL . PHP_EOL . 
-			"EX : ..chgpass 54321" . PHP_EOL
-		 ; 
-
 	$group_array_help = array(
 		") menu" . PHP_EOL . PHP_EOL . 
-			"> Shows the UI for interacting with me." . PHP_EOL . PHP_EOL . 
-			"EX : menu" . PHP_EOL,
+			"> Shows the menu for interacting with me, only in mobile version" . PHP_EOL . PHP_EOL . 
+			"EX : menu" . PHP_EOL . PHP_EOL,
+
+		") @[Mention name] *[Additonal Message]" . PHP_EOL . PHP_EOL . 
+			"> Every member subscribed to specific [MentionName] will be notified personally by me. You can add additional messages after the mention name to provide better information subscribed peoples" . PHP_EOL . PHP_EOL .
+			"EX : @MyMentionName" . PHP_EOL . "@MyMentionName Something urgent happen" . PHP_EOL . PHP_EOL,
 
 		") ..request [Nickname] [Pass]" . PHP_EOL . PHP_EOL . 
 			"> A one time action used to register your group. Make sure to fill [Nickname] with something that can be used to identify your group easily such as your own group name. You also need to provide a [PASS] for your group, preferably something easy to type." . PHP_EOL . PHP_EOL . 
-			"EX : ..request My Group Name 123abc" . PHP_EOL,
+			"EX : ..request My Group Name 123abc" . PHP_EOL . PHP_EOL,
 
 		") ..info" . PHP_EOL . PHP_EOL . 
 			"> Shows the group name and pass information of your group." . PHP_EOL . PHP_EOL . 
-			"EX : ..info" . PHP_EOL,
+			"EX : ..info" . PHP_EOL . PHP_EOL,
 
 		") ..list" . PHP_EOL . PHP_EOL . 
 			"> Shows all mention created by your group." . PHP_EOL . PHP_EOL .
-			"EX : ..list" . PHP_EOL,
-
-		") ..ping [Mention name] *[Additonal Message]" . PHP_EOL . PHP_EOL . 
-			"> Initiate mention on [MentionName]. Every member subscribed to that [MentionName] will be notified personally by me. You can also add additional messages after the mention name to provide better information subscribed peoples" . PHP_EOL . PHP_EOL .
-			"EX : ..ping MyMentionName" . PHP_EOL . "..ping MyMentionName Something urgent happen" . PHP_EOL,
+			"EX : ..list" . PHP_EOL . PHP_EOL,
 		
 		") ..create [MentionName] [PASS]" . "" . PHP_EOL . PHP_EOL . 
-			"> Create a new mention for your group that your group member can use to link. For now you cannot create mention with space in it" . PHP_EOL . PHP_EOL . 
-			"EX : ..create GroupNewMention 12345" . PHP_EOL,
+			"> Create a new mention for group that your group member can use to subs. You cannot create mention with space in it" . PHP_EOL . PHP_EOL . 
+			"EX : ..create GroupNewMention 12345" . PHP_EOL . PHP_EOL,
 		
 		") ..rename [OldMentionName] [NewMentionName] [PASS]" . "" . PHP_EOL . PHP_EOL . 
-			"> Changes an existing mention into a new name. You cannot have a duplicate name" . PHP_EOL . PHP_EOL . 
-			"EX : ..rename GroupMention NewGroupMention 12345" . PHP_EOL,
+			"> Changes an existing mention name. You cannot have a duplicate name" . PHP_EOL . PHP_EOL . 
+			"EX : ..rename GroupMention NewGroupMention 12345" . PHP_EOL . PHP_EOL,
 
 		") ..delete [MentionName] [PASS]" . "" . PHP_EOL . PHP_EOL . 
 			"> Delete a mention from your group. All member subscribed to that mention will be automatically unsubscribed." . PHP_EOL . PHP_EOL . 
-			"EX : ..delete GroupNewMention 12345" . PHP_EOL,
+			"EX : ..delete GroupNewMention 12345" . PHP_EOL . PHP_EOL,
 		
 		") ..whosubs [MentionName]" . "" . PHP_EOL . PHP_EOL . 
-			"> Shows all the member profile name subcribed to specific mention." . PHP_EOL . PHP_EOL . 
-			"EX : ..wholink GroupNewMention" . PHP_EOL,
+			"> Shows all member profile name subcribed to specific mention." . PHP_EOL . PHP_EOL . 
+			"EX : ..wholink GroupNewMention" . PHP_EOL . PHP_EOL,
 		
 		") ..revoke [Pass]" . "" . PHP_EOL . PHP_EOL . 
-			"> WARNING : Executing this command will delete ALL data associated with your group including subscribed members and group mentions." . PHP_EOL . PHP_EOL . 
-			"EX : ..revoke 12345" . PHP_EOL,
+			"> WARNING : This command will delete ALL data associated with your group including subscribed members and group mentions." . PHP_EOL . PHP_EOL . 
+			"EX : ..revoke 12345" . PHP_EOL . PHP_EOL,
 		
-		") ..help" . "" . PHP_EOL . PHP_EOL . 
-			"> Shows all the explanation for each command depending if request sent from group or personal chat." . PHP_EOL . PHP_EOL . 
-			"EX : ..help" . PHP_EOL,
+		") ..help OR ..helpPC" . "" . PHP_EOL . PHP_EOL . 
+			"> Shows all the explanation of each command." . PHP_EOL . PHP_EOL . 
+			"EX : ..helpPC" . PHP_EOL . PHP_EOL,
 
 		") ..chgname [New Name] [PASS]" . "" . PHP_EOL . PHP_EOL . 
 			"> Changes group nickname into a new one." . PHP_EOL . PHP_EOL . 
-			"EX : ..chgname Group New Name 12345" . PHP_EOL,
+			"EX : ..chgname Group New Name 12345" . PHP_EOL . PHP_EOL,
 
 		") ..chgpass [NewPass]" . "" . PHP_EOL . PHP_EOL . 
 			"> Changes group password into a new one." . PHP_EOL . PHP_EOL . 
