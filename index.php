@@ -242,6 +242,51 @@
 						                    ));
 											break;
 
+										case '..simg':
+											switch ($exploded_Message[1]) {
+												case 'pulang':
+													$ori = 'https://i.imgur.com/WyVgDvF.jpg' ;
+													$ori_preview = 'https://i.imgur.com/WyVgDvFt.jpg' ;
+													break;
+
+												case 'angry':
+													$ori = 'https://i.imgur.com/ySDiUST.jpg' ;
+													$ori_preview = 'https://i.imgur.com/ySDiUSTt.jpg' ;
+													break;
+
+												case 'deal':
+													$ori = 'https://i.imgur.com/D9bZ383.jpg' ;
+													$ori_preview = 'https://i.imgur.com/D9bZ383t.jpg' ;
+													break;
+
+												case 'sorry':
+													$ori = 'https://i.imgur.com/UG6QclK.jpg' ;
+													$ori_preview = 'https://i.imgur.com/UG6QclK.jpg' ;
+													break;
+
+												case 'myself':
+													$ori = 'https://i.imgur.com/uCGFC0l.jpg' ;
+													$ori_preview = 'https://i.imgur.com/uCGFC0lt.jpg' ;
+													break;
+
+												case 'dazed':
+													$ori = 'https://i.imgur.com/WI4k3QL.jpg' ;
+													$ori_preview = 'https://i.imgur.com/WI4k3QLt.jpg' ;
+													break;
+											}
+
+											$client->pushMessage(array(
+						                        'to' => 'Cbb634a613ad4c12b24c73398f9f38687',
+						                        'messages' => array(
+						                            array(
+						                                'type' => 'image',
+						                                'originalContentUrl' => $ori,
+						                                'previewImageUrl' => $ori_preview
+						                            )
+						                        )
+						                    ));
+											break;
+
 										case 'test1':
 											$client->pushMessage(array(
 						                        'to' => $event['source']['userId'],
@@ -368,14 +413,14 @@
 						                                			'text' => '..mysubs'
 						                                		),
 						                                		array(
-						                                			'type' => 'postback',
+						                                			'type' => 'message',
 						                                			'label' => 'Subscribe to',
-						                                			'data' => 'personalSubs'				                                				
+						                                			'text' => '..personalSubs'				                                				
 						                                		),
 						                                		array(
-						                                			'type' => 'postback',
+						                                			'type' => 'message',
 						                                			'label' => 'Unsubscribe',
-						                                			'data' => 'personalUnsubs'	
+						                                			'text' => '..personalUnsubs'	
 						                                		),
 						                                		array(
 						                                			'type' => 'message',
@@ -397,7 +442,16 @@
 										$query_result = mysqli_query($db, $showId_query);
 
 										if ( mysqli_num_rows($query_result) == 0 ) {
-											$text_response = "You Don't Have Any Subscription" ;
+											$text_response = "You don't have any subscription yet" ;
+											$client->replyMessage(array(
+							                        'replyToken' => $event['replyToken'],
+							                        'messages' => array(
+							                            array(
+							                                'type' => 'text',
+							                                'text' => $text_response
+							                            )
+							                        )
+							                ));
 										} else {
 											$text_response = "Subscription List" . PHP_EOL . PHP_EOL ;
 
@@ -415,23 +469,24 @@
 													$text_response .= PHP_EOL . $current_desc . PHP_EOL . "Group ID : " . $current_id . PHP_EOL . "- " . $query_fetch['KEYWORD'] . PHP_EOL; 
 												}
 											} while ($query_fetch = mysqli_fetch_array($query_result)) ;
+
+				                    		$client->replyMessage(array(
+							                        'replyToken' => $event['replyToken'],
+							                        'messages' => array(
+							                            array(
+							                                'type' => 'text',
+							                                'text' => $text_response
+							                            ),
+							                            array(
+							                                'type' => 'text',
+							                                'text' => "Here's all your personal subscription~"
+							                            )
+							                        )
+							                ));
 										}
+				                    	
+				                    	mysqli_close($db);
 
-			                    		mysqli_close($db);
-
-			                    		$client->replyMessage(array(
-						                        'replyToken' => $event['replyToken'],
-						                        'messages' => array(
-						                            array(
-						                                'type' => 'text',
-						                                'text' => $text_response
-						                            ),
-						                            array(
-						                                'type' => 'text',
-						                                'text' => "Here's all your personal subscription~"
-						                            )
-						                        )
-						                ));
 										break;
 
 									case '..subs' :
@@ -545,6 +600,32 @@
 						                        )
 						                ));
 										break;
+
+				        			case '..personalSubs':
+				        				file_put_contents('./temp/' . $event['source']['userId'] . '.txt', '..subs' . PHP_EOL , LOCK_EX);
+				        				$client->replyMessage(array(
+					                        'replyToken' => $event['replyToken'],
+					                        'messages' => array(
+					                            array(
+					                                'type' => 'text',
+					                                'text' => 'Please enter the group ID now'
+					                            )
+					                        )
+					                	));
+				        				break;
+
+				    				case '..personalUnsubs':
+									  	file_put_contents('./temp/' . $event['source']['userId'] . '.txt', '..unsubs' . PHP_EOL , LOCK_EX);
+				        				$client->replyMessage(array(
+					                        'replyToken' => $event['replyToken'],
+					                        'messages' => array(
+					                            array(
+					                                'type' => 'text',
+					                                'text' => 'Please enter the group ID now'
+					                            )
+					                        )
+					                	));
+				    					break;
 
 									default:
 										# code...
@@ -1143,7 +1224,96 @@
 								// Standard Core Function
 								} else {
 									switch ($exploded_Message[0]) {		
+										
 										case 'menu':
+
+											if (fm_check_unique_id($event['source']['groupId'], $db) == 0) {
+							                    $client->replyMessage(array(
+							                        'replyToken' => $event['replyToken'],
+							                        'messages' => array(
+
+							                        	// First Message
+							                            array(
+							                                'type' => 'template',
+
+							                                'altText' => "If you use LINE PC type '..helpPC' to see all the available command",
+
+							                                // The Button Content
+							                                'template' => array(
+
+							                                	'type' => "buttons",
+							                                	'title' => "Initial Group Menu",
+							                                	'text' => "Please register your group first via this menu below~",
+
+							                                	// Action to take between the three
+							                                	'actions' => array(
+							                                		array(
+							                                			'type' => 'postback',
+							                                			'label' => 'Register Group',
+							                                			'data' => 'groupRegister'
+							                                		),
+							                                		array(
+							                                			'type' => 'message',
+							                                			'label' => 'Help',
+							                                			'text' => '..help'				                                				
+							                                		)
+							                                	)
+							                                )
+							                            )
+							                        )
+							                    ));
+											} else {
+
+												$client->replyMessage(array(
+								                        'replyToken' => $event['replyToken'],
+								                        'messages' => array(
+
+								                        	// First Message
+								                            array(
+								                                'type' => 'template',
+
+								                                'altText' => "If you use LINE PC type '..helpPC' to see all the available command",
+
+								                                // The Button Content
+								                                'template' => array(
+
+								                                	'type' => "buttons",
+								                                	'title' => "Groups Main Menu",
+								                                	'text' => "Here's the list of command categories you can give~",
+
+								                                	// Action to take between the three
+								                                	'actions' => array(
+								                                		array(
+								                                			'type' => 'uri',
+								                                			'label' => 'Video Guides',
+								                                			'uri' => "https://www.youtube.com/watch?v=8Sc6oQ3kWi0&list=PLeYOjd5ex5m3_Nw9LaeL2hMsdPqMbMbpL"
+								                                		),
+								                                		array(
+								                                			'type' => 'message',
+								                                			'label' => 'Manage Mention',
+								                                			'text' => '..manageMention'				                                				
+								                                		),
+								                                		array(
+								                                			'type' => 'message',
+								                                			'label' => 'Group Settings',
+								                                			'text' => '..manageGroup'	
+								                                		),
+								                                		array(
+								                                			'type' => 'message',
+								                                			'label' => "Help & Miscellaneous",
+								                                			'text' => '..helpGroup'	
+								                                		)
+								                                	)
+								                                )
+								                            )
+								                        )
+								                    ));
+
+											}
+
+											break;
+
+										case 'oldMenu':
 
 											if (fm_check_unique_id($event['source']['groupId'], $db) == 0) {
 							                    $client->replyMessage(array(
@@ -1317,14 +1487,14 @@
 									                                			'text' => '..helpPC'	
 									                                		),
 									                                		array(
-									                                			'type' => 'postback',
+									                                			'type' => 'message',
 									                                			'label' => 'About Me',
-									                                			'data' => 'aboutMe'	
+									                                			'text' => '..about'	
 									                                		),
 									                                		array(
 									                                			'type' => 'uri',
 									                                			'label' => 'Feedback Me',
-									                                			'uri' => "mailto:minerva.bot.developer@gmail.com?subject=BOT%20Feedback"	
+									                                			'uri' => "mailto:minerva.bot.developer@gmail.com?subject=Feedback%20For%20Minerva"	
 									                                		)
 									                                	)
 							                                		)
@@ -1337,6 +1507,147 @@
 
 											}
 
+											break;
+
+										case '..manageMention':
+											$client->replyMessage(array(
+							                        'replyToken' => $event['replyToken'],
+							                        'messages' => array(
+
+							                        	// First Message
+							                            array(
+							                                'type' => 'template',
+
+							                                'altText' => "If you use LINE PC type '..helpPC' to see all the available command",
+
+							                                // The Button Content
+							                                'template' => array(
+
+							                                	'type' => "buttons",
+							                                	'title' => "Group Mention Management",
+							                                	'text' => "List of commands used to manage your group mention~",
+
+							                                	// Action to take between the three
+							                                	'actions' => array(
+							                                		array(
+							                                			'type' => 'message',
+							                                			'label' => 'Mention List',
+							                                			'text' => '..list'	
+							                                		),
+							                                		array(
+							                                			'type' => 'postback',
+							                                			'label' => 'Create Mention',
+							                                			'data' => 'groupCreate'
+							                                		),
+							                                		array(
+							                                			'type' => 'postback',
+							                                			'label' => 'Rename Mention',
+							                                			'data' => 'renamePing'	
+							                                		),
+							                                		array(
+							                                			'type' => 'postback',
+							                                			'label' => 'Delete Mention',
+							                                			'data' => 'groupDelete'	
+							                                		)
+							                                	)
+							                                )
+							                            )
+							                        )
+							                    ));
+											break;
+
+										case '..manageGroup':
+											$client->replyMessage(array(
+							                        'replyToken' => $event['replyToken'],
+							                        'messages' => array(
+
+							                        	// First Message
+							                            array(
+							                                'type' => 'template',
+
+							                                'altText' => "If you use LINE PC type '..helpPC' to see all the available command",
+
+							                                // The Button Content
+							                                'template' => array(
+
+							                                	'type' => "buttons",
+							                                	'title' => "Group Settings",
+							                                	'text' => "List of commands to see and change your group setting~",
+
+							                                	// Action to take between the three
+							                                	'actions' => array(
+							                                		array(
+							                                			'type' => 'message',
+							                                			'label' => 'Group Info',
+							                                			'text' => '..info'	
+							                                		),
+							                                		array(
+							                                			'type' => 'postback',
+							                                			'label' => 'Change Nickname',
+							                                			'data' => 'changeNickname'	
+							                                		),
+							                                		array(
+							                                			'type' => 'postback',
+							                                			'label' => 'Change Pass',
+							                                			'data' => 'changePass'	
+							                                		),
+							                                		array(
+							                                			'type' => 'postback',
+							                                			'label' => 'Delete Group',
+							                                			'data' => 'groupRevoke'	
+							                                		)
+							                                	)
+							                                )
+							                            )
+							                        )
+							                    ));
+											break;
+
+										case '..helpGroup':
+											$client->replyMessage(array(
+							                        'replyToken' => $event['replyToken'],
+							                        'messages' => array(
+
+							                        	// First Message
+							                            array(
+							                                'type' => 'template',
+
+							                                'altText' => "If you use LINE PC type '..helpPC' to see all the available command",
+
+							                                // The Button Content
+							                                'template' => array(
+
+							                                	'type' => "buttons",
+							                                	'title' => "Group Help Desk",
+							                                	'text' => "Here's some helpful info for you~",
+
+							                                	// Action to take between the three
+							                                	'actions' => array(
+							                                		array(
+							                                			'type' => 'postback',
+							                                			'label' => 'How To Mention ?',
+							                                			'data' => 'howMention'
+							                                		),
+							                                		array(
+							                                			'type' => 'message',
+							                                			'label' => 'Command Explanation',
+							                                			'text' => '..helpPC'	
+							                                		),
+							                                		array(
+							                                			'type' => 'message',
+							                                			'label' => 'About Me',
+							                                			'text' => '..about'	
+							                                		),
+							                                		array(
+							                                			'type' => 'uri',
+							                                			'label' => 'Feedback Me',
+							                                			'uri' => "mailto:minerva.bot.developer@gmail.com?subject=Feedback%20For%20Minerva"	
+							                                		)
+							                                	)
+							                                )
+							                            )
+							                        )
+							                    ));
 											break;
 
 										case '..request':
@@ -1853,11 +2164,6 @@
 					                                	// Action to take between the three
 					                                	'actions' => array(
 					                                		array(
-					                                			'type' => 'postback',
-					                                			'label' => 'About Me',
-					                                			'data' => 'aboutMe'
-					                                		),
-					                                		array(
 					                                			'type' => 'message',
 					                                			'label' => 'Command Explanation',
 					                                			'text' => '..helpPC'				                                				
@@ -1865,7 +2171,7 @@
 					                                		array(
 					                                			'type' => 'uri',
 					                                			'label' => 'Give Feedback',
-					                                			'uri' => "mailto:minerva.bot.developer@gmail.com?subject=BOT%20Feedback"	
+					                                			'uri' => "mailto:minerva.bot.developer@gmail.com?subject=Feedback%20For%20Minerva"	
 					                                		)
 					                                	)
 					                                )
@@ -1903,8 +2209,13 @@
 					                                		),
 					                                		array(
 					                                			'type' => 'uri',
+					                                			'label' => 'Video Tutorial',
+					                                			'uri' => "https://www.youtube.com/watch?v=8Sc6oQ3kWi0&list=PLeYOjd5ex5m3_Nw9LaeL2hMsdPqMbMbpL"	
+					                                		),
+					                                		array(
+					                                			'type' => 'uri',
 					                                			'label' => 'Give Feedback',
-					                                			'uri' => "mailto:minerva.bot.developer@gmail.com?subject=BOT%20Feedback"	
+					                                			'uri' => "mailto:minerva.bot.developer@gmail.com?subject=Feedback%20For%20Minerva"	
 					                                		)
 					                                	)
 					                                )
@@ -1917,7 +2228,6 @@
 
 									break;
 								
-
 								case '..helpPC':
 									
 									if (isset($event['source']['userId'])) {
@@ -1953,7 +2263,18 @@
 					                        )
 					                ));
 									break;
-								
+
+								case '..about':
+									$client->replyMessage(array(
+				                        'replyToken' => $event['replyToken'],
+				                        'messages' => array(
+				                            array(
+				                                'type' => 'text',
+				                                'text' => "Hello everyone, i'm Minerva your personal assistant in personal and group chat." . PHP_EOL . PHP_EOL . "I can keep you stay updated on the vast amount of message you receive everyday." . PHP_EOL . PHP_EOL . "Just subscribe to any mention created on group and i'll notify you when something with that mention posted"
+				                            )
+				                        )
+				                	));
+									break;
 
 								//////////////////////////////
 								// When nothing is similar //
@@ -2035,18 +2356,16 @@
 
 	        // Response When Followed By Personal Account
 	        case 'follow':
-	        	$client_name = $client->getProfile($event['source']['userId']);
-
 				$client->replyMessage(array(
                     'replyToken' => $event['replyToken'],
                     'messages' => array(
                         array(
                             'type' => 'text',
-                            'text' => "Hello " . $client_name .  ", thank you very much for adding me as your friend :D" . PHP_EOL . PHP_EOL . " I'll try my best to support you in keeping you updated with all the important messages you subscribed."
+                            'text' => "Hello there, thank you very much for adding me as your friend :D" . PHP_EOL . PHP_EOL . " I'll try my best to support you in keeping you updated with all the important messages you subscribed."
                         ),
                         array(
                             'type' => 'text',
-                            'text' => "Please type 'menu' anytime when you want to interact with me"
+                            'text' => "Please select 'My Menu' anytime when you want to interact with me" . PHP_EOL . PHP_EOL . "Oh, don't forget to check the video tutorial to know me more~"
                         )
                     )
             	));
@@ -2060,6 +2379,29 @@
                         array(
                             'type' => 'text',
                             'text' => "Aww, it's a shame. I'm sorry if my help doesn't really helps you. Would you mind giving me some feedback to improve myself from the link below ? Any helps would be appreciated. Oh and before i go thank you very much for trying my services. I hope we can work together again next time"
+                        ),
+                        array(
+                            'type' => 'template',
+
+                            'altText' => "Email your feedback to :" . PHP_EOL . "minerva.bot.developer@gmail.com",
+
+                            // The Button Content
+                            'template' => array(
+
+                            	'type' => "buttons",
+                            	'title' => "Feedback",
+                            	'text' => "Email your feedback via this button~",
+
+                            	// Action to take between two
+                            	'actions' => array(
+	                        		array(
+	                        			'type' => 'uri',
+	                        			'label' => 'Feedback Me',
+	                        			'uri' => "mailto:minerva.bot.developer@gmail.com?subject=Feedback%20For%20Minerva"	
+	                        		)
+                            	)
+
+                            )
                         )
                     )
             	));
@@ -2069,31 +2411,8 @@
         	case 'postback':
         		switch ($event['postback']['data']) {
         			// For Personal User
-        			case 'personalSubs':
-        				file_put_contents('./temp/' . $event['source']['userId'] . '.txt', '..subs' . PHP_EOL , LOCK_EX);
-        				$client->replyMessage(array(
-	                        'replyToken' => $event['replyToken'],
-	                        'messages' => array(
-	                            array(
-	                                'type' => 'text',
-	                                'text' => 'Please enter the group ID now'
-	                            )
-	                        )
-	                	));
-        				break;
 
-    				case 'personalUnsubs':
-					  	file_put_contents('./temp/' . $event['source']['userId'] . '.txt', '..unsubs' . PHP_EOL , LOCK_EX);
-        				$client->replyMessage(array(
-	                        'replyToken' => $event['replyToken'],
-	                        'messages' => array(
-	                            array(
-	                                'type' => 'text',
-	                                'text' => 'Please enter the group ID now'
-	                            )
-	                        )
-	                	));
-    					break;
+
 
 					// For Group User
     				case 'groupRegister':
@@ -2250,19 +2569,7 @@
 	                        'messages' => array(
 	                            array(
 	                                'type' => 'text',
-	                                'text' => 'Okay, please pick the menu again to input a new one'
-	                            )
-	                        )
-	                	));
-						break;
-
-					case 'aboutMe':
-						$client->replyMessage(array(
-	                        'replyToken' => $event['replyToken'],
-	                        'messages' => array(
-	                            array(
-	                                'type' => 'text',
-	                                'text' => "Hello everyone, i'm Minerva your personal assistant in personal and group chat." . PHP_EOL . PHP_EOL . "I can keep you stay updated on the vast amount of message you receive everyday." . PHP_EOL . PHP_EOL . " Just sub to any mention created on group and i'll notify you when something with that mention posted"
+	                                'text' => 'Okay, please pick the menu again to input the new information'
 	                            )
 	                        )
 	                	));
