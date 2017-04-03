@@ -14,6 +14,7 @@
 	
 	require_once( __DIR__ . '/func/func_main.php');
 	require_once( __DIR__ . '/func/func_db.php');
+	// require_once( __DIR__ . '/func/db_function.php');
 
 	require_once( __DIR__ . '/text/help_personal.php');
 	require_once( __DIR__ . '/text/help_group.php');
@@ -47,6 +48,7 @@
 							//////////////////////////////////
 
 							if (isset($event['source']['userId'])) {
+								// $database = new db_function();
 
 								// For Private Debugging
 								if ($event['source']['userId'] == 'Uc7871461db4f5476b1d83f71ee559bf0') {
@@ -2371,7 +2373,7 @@
             	));
 	        	break;
 
-	        // Response When Unfollowed By Personal Account
+	        // Response When Unfollowed By Personal Account -> Not Working Because API Limitation
 	        case 'unfollow':
 				$client->replyMessage(array(
                     'replyToken' => $event['replyToken'],
