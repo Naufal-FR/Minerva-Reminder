@@ -1678,10 +1678,7 @@
 												
 												$callsign = implode(" ", $exploded_Message);
 
-												$query = "INSERT INTO GROUP_INFORMATION (`GROUP_ID`, `PASS`, `GROUP_DESCRIPTION`) VALUES ('" .
-													$event['source']['groupId'] . "','" . $group_pass . "','" . $callsign . "')";
-												
-												mysqli_query($db, $query);
+												fm_insert_group_information($group_pass, $event['source']['groupId'], $callsign, $db);
 
 												$registered_id = (int) fm_get_unique_id($event['source']['groupId'], $db) ;
 
