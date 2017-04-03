@@ -14,7 +14,6 @@
 	
 	require_once( __DIR__ . '/func/func_main.php');
 	require_once( __DIR__ . '/func/func_db.php');
-	// require_once( __DIR__ . '/func/db_function.php');
 
 	require_once( __DIR__ . '/text/help_personal.php');
 	require_once( __DIR__ . '/text/help_group.php');
@@ -48,7 +47,6 @@
 							//////////////////////////////////
 
 							if (isset($event['source']['userId'])) {
-								// $database = new db_function();
 
 								// For Private Debugging
 								if ($event['source']['userId'] == 'Uc7871461db4f5476b1d83f71ee559bf0') {
@@ -534,6 +532,64 @@
 														$gf_result_id = mysqli_fetch_array($gf_result);
 														// If there's already the value here, reject the link command
 														if ($target_gf_id == $gf_result_id['GF_ID']) {
+															$text_response = "You already subscribed to it" ;
+														} else {
+															fm_insert_linked_acc($target_gf_id, $event['source']['userId'], $db);
+															$text_response = "Successfully subscribed" ;	
+														}
+													}
+												}	
+											}											
+										}
+										
+			                    		mysqli_close($db);
+
+			                    		$client->replyMessage(array(
+						                        'replyToken' => $event['replyToken'],
+						                        'messages' => array(
+						                            array(
+						                                'type' => 'text',
+						                                'text' => $text_response
+						                            )
+						                        )
+						                ));
+										break;
+									
+									case '..subsx' :
+										// 1 = Group Unique ID | 2 = Keyword
+										if (!isset($exploded_Message[1]) OR !isset($exploded_Message[2])) {
+											$text_response = 'Not enough information to subscribe.' . PHP_EOL . PHP_EOL . 'Need group ID and subscription name' ;
+										
+										} else {
+											// Checks if the ID exist
+
+											if ( fm_check_gf_id($exploded_Message[1], $db) == 0 ) {
+												$text_response = "Can't find group with that ID" ;
+											} else {
+												// Get the number of mention on that ID
+												$number_of_mention = fm_check_keyword_available($exploded_Message[1], $db);
+
+												// If there's no result even though group account registered
+												if ($number_of_mention == 0) {
+													$text_response = "That group doesn't have any subscription yet" ;
+												} else {
+													// Loop through all the that group keyword
+													$check_result = fm_get_keyword($exploded_Message[1], $db);
+													$found = 0 ;
+													while ($keyword_list = mysqli_fetch_array($check_result) AND $found == 0) {
+														// If there's the same keyword with the one inputted, take the gf_id of that keyword
+														if ($keyword_list['KEYWORD'] == $exploded_Message[2]) {
+															$target_gf_id = fm_get_gf_id_secure($keyword_list['KEYWORD'], $exploded_Message[1], $db) ;
+															$found = 1 ;
+														}
+													}
+													if ($found == 0) {
+														$text_response = "There's no subscription with that name" ;
+													} else {
+														// Checks the gf_id in the personal account to see if it's already subscribed
+														$already_subscribed = fm_check_linked_id_secure($target_gf_id, $event['source']['userId'], $db);
+														// If there's already the value here, reject the link command
+														if ($already_subscribed == 1) {
 															$text_response = "You already subscribed to it" ;
 														} else {
 															fm_insert_linked_acc($target_gf_id, $event['source']['userId'], $db);

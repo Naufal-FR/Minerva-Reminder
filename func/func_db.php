@@ -140,7 +140,7 @@
 	}
 
 	function fm_check_linked_id_secure ($target_gf_id, $personal_Id, $db_conf){
-		$query = "SELECT COUNT(*) AS `LINKED_COUNT` FROM `LINKED_ACC` WHERE GF_ID='" . $target_gf_id . "'" . "' AND PERSONAL_ID='" . $personal_Id . "'";
+		$query = "SELECT COUNT(*) AS `LINKED_COUNT` FROM `LINKED_ACC` WHERE GF_ID='" . $target_gf_id . "'" . " AND PERSONAL_ID='" . $personal_Id . "'";
 		$query_result = mysqli_query($db_conf, $query);
 		$query_fetch = mysqli_fetch_array($query_result);
 
@@ -154,6 +154,20 @@
 	function fm_check_unique_id ($group_id, $db_conf){
 
 		$query = "SELECT COUNT(*) AS `IS_CREATED` FROM `GROUP_INFORMATION` WHERE GROUP_ID='" . $group_id . "'" ;
+		$query_result = mysqli_query($db_conf, $query);
+
+		$query_fetch = mysqli_fetch_array($query_result);
+
+		if ( $query_fetch['IS_CREATED'] == 0 ) {
+			return 0 ;
+		} elseif ( $query_fetch['IS_CREATED'] == 1 ) {
+			return 1 ;
+		}
+	}
+
+	function fm_check_gf_id ($unique_id, $db_conf){
+
+		$query = "SELECT COUNT(*) AS `IS_CREATED` FROM `GROUP_INFORMATION` WHERE UNIQUE_ID='" . $unique_id . "'" ;
 		$query_result = mysqli_query($db_conf, $query);
 
 		$query_fetch = mysqli_fetch_array($query_result);
