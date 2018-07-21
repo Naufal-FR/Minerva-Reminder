@@ -2265,6 +2265,47 @@
 				                	));
 									break;
 
+								case '..cuaca':
+									$weather_key = "c91dbce1c0bf47f4a3e204431172905";
+									$target_city = 'Malang';
+
+							        $url ="http://api.apixu.com/v1/forecast.json?key=$weather_key&q=$target_city&=";
+
+							        $ch = curl_init();  
+							        curl_setopt($ch,CURLOPT_URL,$url);
+							        curl_setopt($ch,CURLOPT_RETURNTRANSFER,true);
+							        
+							        $json_output = curl_exec($ch);
+							        $weather = json_decode($json_output);
+							        
+							        $days = $weather->forecast->forecastday;
+
+							        $date = $days[0]->date ; 
+							        // $value_on_6 = $days[0]->hour[5]->will_it_rain ;
+
+							        // if ($value_on_6 == 0) {
+							        // 	$status_on_6 = "Not Rain" ;
+							        // } else {
+							        // 	$status_on_6 = "Rain" ;
+							        // }
+
+							        $weather_header = $date . PHP_EOL . $target_city . PHP_EOL . PHP_EOL ;
+							        // $weather_on_6 = "6AM : " $status_on_6 ;
+
+							        $response = $weather_header  ; 
+
+	                    			$client->replyMessage(array(
+					                        'replyToken' => $event['replyToken'],
+					                        'messages' => array(
+					                            array(
+					                                'type' => 'text',
+					                                'text' => $response 
+					                            )
+					                        )
+					                )); 
+
+									break;
+
 								//////////////////////////////
 								// When nothing is similar //
 								////////////////////////////
